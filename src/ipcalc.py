@@ -29,11 +29,21 @@
 #  * Hans van Kranenburg (Knorrie)
 #
 
-__version__ = '0.1a'
+__version__ = '0.2'
 
 import types, socket
 
 class IP(object):
+    '''
+    Represents a single IP address.
+
+    >>> localhost = IP("127.0.0.1")
+    >>> print localhost
+    127.0.0.1
+    >>> localhost6 = IP("::1")
+    >>> print localhost6
+    0000:0000:0000:0000:0000:0000:0000:0001
+    '''
 
     # Hex-to-Bin conversion masks
     _bitmask = {
@@ -134,6 +144,10 @@ class IP(object):
     def bin(self):
         '''
         Full-length binary representation of the IP address.
+
+        >>> ip = IP("127.0.0.1")
+        >>> print ip.bin()
+        01111111000000000000000000000001
         '''
         h = hex(self.ip).lower().rstrip('l')
         b = ''.join(self._bitmask[x] for x in h[2:])
@@ -143,6 +157,10 @@ class IP(object):
     def hex(self):
         '''
         Full-length hexadecimal representation of the IP address.
+
+        >>> ip = IP("127.0.0.1")
+        >>> print ip.hex()
+        7f000001
         '''
         if self.v == 4:
             return '%08x' % self.ip
@@ -153,11 +171,22 @@ class IP(object):
         return self.mask
 
     def version(self):
+        '''
+        IP version.
+
+        >>> ip = IP("127.0.0.1")
+        >>> print ip.version()
+        4
+        '''
         return self.v
    
     def info(self):
         '''
         Show IANA allocation information for the current IP address.
+
+        >>> ip = IP("127.0.0.1")
+        >>> print ip.info()
+        CLASS A
         '''
         b = self.bin()
         l = self.v == 4 and 32 or 128
@@ -244,6 +273,13 @@ class IP(object):
             return ':'.join(n[4*x:4*x+4] for x in xrange(0, 8))
 
     def __str__(self):
+        '''
+        Return dotquad representation of the IP.
+
+        >>> ip = IP("::1")
+        >>> print str(ip)
+        0000:0000:0000:0000:0000:0000:0000:0001
+        '''
         return self.dq
 
     def __int__(self):
@@ -258,13 +294,21 @@ class IP(object):
     def clone(self):
         '''
         Return a new <IP> object with a copy of this one.
+
+        >>> ip = IP('127.0.0.1')
+        >>> ip.clone()
+        <ipcalc.IP object at 0xb7d4d18c>
         '''
         return IP(self)
 
     def to_ipv4(self):
         '''
-        Convert (a IPv6) IP address to an IPv4 address, if possible. Only works
+        Convert (an IPv6) IP address to an IPv4 address, if possible. Only works
         for IPv4-compat (::/96) and 6-to-4 (2002::/16) addresses.
+
+        >>> ip = IP('2002:c000:022a::')
+        >>> print ip.to_ipv4()
+        192.0.2.42
         '''
         if self.v == 4:
             return self
@@ -278,7 +322,11 @@ class IP(object):
 
     def to_ipv6(self, type='6-to-4'):
         '''
-        Convert (a IPv4) IP address to an IPv6 address.
+        Convert (an IPv4) IP address to an IPv6 address.
+
+        >>> ip = IP('192.0.2.42')
+        >>> print ip.to_ipv6()
+        2002:c000:022a:0000:0000:0000:0000:0000
         '''
         assert type in ['6-to-4', 'compat'], 'Conversion type not supported'
         if self.v == 4:
@@ -298,11 +346,19 @@ class IP(object):
 class Network(IP):
     '''
     Network slice calculations.
+
+    >>> localnet = Network('127.0.0.1/8')
+    >>> print localnet
+    127.0.0.1
     '''
 
     def netmask(self):
         '''
         Network netmask derived from subnet size.
+
+        >>> localnet = Network('127.0.0.1/8')
+        >>> print localnet.netmask()
+        255.0.0.0
         '''
         if self.version() == 4:
             return IP((0xffffffffL >> (32-self.mask)) << (32-self.mask), version=self.version())
@@ -312,12 +368,20 @@ class Network(IP):
     def network(self):
         '''
         Network address.
+
+        >>> localnet = Network('127.128.99.3/8')
+        >>> print localnet.network()
+        127.0.0.0
         '''
         return IP(self.ip & long(self.netmask()), version=self.version())
     
     def broadcast(self):
         '''
         Broadcast address.
+
+        >>> localnet = Network('127.0.0.1/8')
+        >>> print localnet.broadcast()
+        127.255.255.255
         '''
         # XXX: IPv6 doesn't have a broadcast address, but it's used for other 
         #      calculations such as <Network.host_last>.
@@ -376,7 +440,8 @@ class Network(IP):
         '''
         Generate a range of ip addresses within the network.
 
-        >>> for ip in Network('192.168.114.0/30'): print str(ip)
+        >>> for ip in Network('192.168.114.0/30'):
+        ...     print str(ip)
         ... 
         192.168.114.0
         192.168.114.1
@@ -401,6 +466,10 @@ class Network(IP):
     def size(self):
         '''
         Number of ip's within the network.
+
+        >>> net = Network('192.0.2.0/24')
+        >>> print net.size()
+        256
         '''
         return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
 
