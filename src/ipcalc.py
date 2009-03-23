@@ -293,6 +293,21 @@ class IP(object):
     def __long__(self):
         return self.ip
 
+    def __lt__(self, other):
+        return long(self) < long(IP(other))
+
+    def __le__(self, other):
+        return long(self) <= long(IP(other))
+
+    def __ge__(self, other):
+        return long(self) >= long(IP(other))
+
+    def __gt__(self, other):
+        return long(self) > long(IP(other))
+
+    def __eq__(self, other):
+        return long(self) == long(IP(other))
+
     def size(self):
         return 1
 
@@ -440,6 +455,9 @@ class Network(IP):
 
     def __ge__(self, other):
         return self.size() >= IP(other).size()
+
+    def __eq__(self, other):
+        return self.size() == IP(other).size()
 
     def __iter__(self):
         '''
