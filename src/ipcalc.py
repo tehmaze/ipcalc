@@ -6,6 +6,7 @@
 #  This module allows you to perform network calculations.
 #
 # CHANGELOG
+#  2009-03-23: Added IPv4 short-hand form support, thanks to VeXocide.
 #  2007-10-26: Added IPv6 support, as well as a lot of other functions, 
 #              refactored the calculations.
 #  2007-10-25: Initial writeup, because I could not find any other workable
@@ -27,9 +28,10 @@
 #  * Bastiaan (trbs)
 #  * Peter van Dijk (Habbie)
 #  * Hans van Kranenburg (Knorrie)
+#  * Jeroen Habraken (VeXocide)
 #
 
-__version__ = '0.2'
+__version__ = '0.3'
 
 import types, socket
 
@@ -252,13 +254,16 @@ class IP(object):
         # IPv4
         if '.' in dq:
             q = dq.split('.')
+            q.reverse()
             if len(q) > 4:
                 raise ValueError, "%r: IPv4 address invalid: more than 4 bytes" % dq
             for x in q:
                 if 0 > int(x) > 255:
                     raise ValueError, "%r: IPv4 address invalid: bytes should be between 0 and 255" % dq
+            while len(q) < 4:
+                q.insert(1, '0')
             self.v = 4
-            return long(q[0])<<24 | long(q[1])<<16 | long(q[2])<<8 | long(q[3])
+            return sum(long(byte) << 8 * index for index, byte in enumerate(q))
     
         raise ValueError, "Invalid address input"
        
