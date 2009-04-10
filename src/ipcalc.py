@@ -1,35 +1,57 @@
-# IP subnet calculator
-# (C) 2007 Wijnand 'tehmaze' Modderman - http://tehmaze.com
-# BSD License
-#
-# ABOUT
-#  This module allows you to perform network calculations.
-#
-# CHANGELOG
-#  2009-03-23: Added IPv4 short-hand form support, thanks to VeXocide.
-#  2007-10-26: Added IPv6 support, as well as a lot of other functions, 
-#              refactored the calculations.
-#  2007-10-25: Initial writeup, because I could not find any other workable
-#              implementation.
-#
-# TODO
-#  * add CLI parser
-#
-# REFERENCES
-#  * http://www.estoile.com/links/ipv6.pdf
-#  * http://www.iana.org/assignments/ipv4-address-space
-#  * http://www.iana.org/assignments/multicast-addresses
-#  * http://www.iana.org/assignments/ipv6-address-space
-#  * http://www.iana.org/assignments/ipv6-tla-assignments
-#  * http://www.iana.org/assignments/ipv6-multicast-addresses
-#  * http://www.iana.org/assignments/ipv6-anycast-addresses
-#
-# THANKS (testing, tips)
-#  * Bastiaan (trbs)
-#  * Peter van Dijk (Habbie)
-#  * Hans van Kranenburg (Knorrie)
-#  * Jeroen Habraken (VeXocide)
-#
+'''
+====================================
+ :mod:`ipcalc` IP subnet calculator
+====================================
+.. moduleauthor:: Wijnand Modderman <http://tehmaze.com/>
+.. note:: BSD License
+
+About
+=====
+
+This module allows you to perform network calculations.
+
+Changelog
+=========
+
+    ========== ===============================================================
+    Date       Changes
+    ========== ===============================================================
+    2009-04-11 Added docstrings.
+    2009-03-23 Added IPv4 short-hand form support, thanks to VeXocide.
+    2007-10-26 Added IPv6 support, as well as a lot of other functions, 
+               refactored the calculations.
+    2007-10-25 Initial writeup, because I could not find any other workable
+               implementation.
+    ========== ===============================================================
+
+Todo
+====
+
+Todo:
+ * add CLI parser
+ 
+References
+==========
+
+References:
+ * http://www.estoile.com/links/ipv6.pdf
+ * http://www.iana.org/assignments/ipv4-address-space
+ * http://www.iana.org/assignments/multicast-addresses
+ * http://www.iana.org/assignments/ipv6-address-space
+ * http://www.iana.org/assignments/ipv6-tla-assignments
+ * http://www.iana.org/assignments/ipv6-multicast-addresses
+ * http://www.iana.org/assignments/ipv6-anycast-addresses
+
+Thanks
+======
+
+I wish to thank the following people for their input:
+ * Bastiaan (trbs)
+ * Peter van Dijk (Habbie)
+ * Hans van Kranenburg (Knorrie)
+ * Jeroen Habraken (VeXocide)
+
+'''
 
 __version__ = '0.3'
 
@@ -38,6 +60,9 @@ import types, socket
 class IP(object):
     '''
     Represents a single IP address.
+
+    :param ip: the ip address
+    :type ip: :class:`IP` or str or long or int 
 
     >>> localhost = IP("127.0.0.1")
     >>> print localhost
@@ -367,6 +392,12 @@ class Network(IP):
     '''
     Network slice calculations.
 
+    :param ip: network address
+    :type ip: :class:`IP` or str or long or int 
+    :param mask: netmask
+    :type mask: int or str
+
+
     >>> localnet = Network('127.0.0.1/8')
     >>> print localnet
     127.0.0.1
@@ -477,6 +508,9 @@ class Network(IP):
     def has_key(self, ip):
         '''
         Check if the given ip is part of the network.
+
+        :param ip: the ip address
+        :type ip: :class:`IP` or str or long or int 
 
         >>> net = Network('192.0.2.0/24')
         >>> net.has_key('192.168.2.0')
