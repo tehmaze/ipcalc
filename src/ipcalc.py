@@ -29,7 +29,7 @@ Todo
 
 Todo:
  * add CLI parser
- 
+
 References
 ==========
 
@@ -53,9 +53,10 @@ I wish to thank the following people for their input:
 
 '''
 
-__version__ = '0.3'
+__version__ = '0.4'
 
 import types, socket
+
 
 class IP(object):
     '''
@@ -206,7 +207,7 @@ class IP(object):
         4
         '''
         return self.v
-   
+
     def info(self):
         '''
         Show IANA allocation information for the current IP address.
@@ -221,7 +222,7 @@ class IP(object):
             if self._range[self.v].has_key(b[:i]):
                 return self._range[self.v][b[:i]]
         return 'UNKNOWN'
- 
+
     def _dqtoi(self, dq):
         '''
         Convert dotquad or hextet to long.
@@ -275,7 +276,7 @@ class IP(object):
             # Assume full heximal notation
             self.v = 6
             return long(h, 16)
-        
+
         # IPv4
         if '.' in dq:
             q = dq.split('.')
@@ -289,9 +290,9 @@ class IP(object):
                 q.insert(1, '0')
             self.v = 4
             return sum(long(byte) << 8 * index for index, byte in enumerate(q))
-    
+
         raise ValueError, "Invalid address input"
-       
+
     def _itodq(self, n):
         '''
         Convert long to dotquad or hextet.
@@ -365,6 +366,25 @@ class IP(object):
             else:
                 return ValueError, "%r: IPv6 address is not IPv4 compatible, nor a 6-to-4 IP" % self.dq
 
+    @classmethod
+    def from_bin(cls, value):
+        value = value.lstrip('b')
+        if len(value) == 32:
+            return cls(int(value, 2))
+        elif len(value) == 128:
+            return cls(long(value, 2))
+        else:
+            return ValueError, "%r: invalid binary notation" % (value,)
+
+    @classmethod
+    def from_hex(cls, value):
+        if len(value) == 8:
+            return cls(int(value, 16))
+        elif len(value) == 32:
+            return cls(long(value, 16))
+        else:
+            raise ValueError, "%r: invalid hexadecimal notation" % (value,)
+
     def to_ipv6(self, type='6-to-4'):
         '''
         Convert (an IPv4) IP address to an IPv6 address.
@@ -387,7 +407,8 @@ class IP(object):
         Used for comparisons.
         '''
         return (self.dq, self.mask)
-    
+
+
 class Network(IP):
     '''
     Network slice calculations.
@@ -425,7 +446,7 @@ class Network(IP):
         127.0.0.0
         '''
         return IP(self.ip & long(self.netmask()), version=self.version())
-    
+
     def broadcast(self):
         '''
         Broadcast address.
@@ -494,7 +515,7 @@ class Network(IP):
         '''
         Generate a range of ip addresses within the network.
 
-        >>> for ip in Network('192.168.114.0/30'):
+        >>> for ip in Network('192.168.114.0.40'):
         ...     print str(ip)
         ... 
         192.168.114.0
@@ -530,6 +551,7 @@ class Network(IP):
         '''
         return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
 
+
 if __name__ == '__main__':
     tests = [
         ('192.168.114.42', 23, ['192.168.0.1', '192.168.114.128', '10.0.0.1']),
@@ -558,4 +580,3 @@ if __name__ == '__main__':
         print 'last host.:', net.host_last()
         for ip in test_ip:
             print '%s in network: ' % ip, ip in net
-

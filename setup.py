@@ -8,7 +8,7 @@ for both IPv4 and IPv6 CIDR notation.
 '''
 
 setup(name='ipcalc',
-      version='0.3',
+      version='0.4',
       description='IP subnet calculator',
       long_description=long_description,
       author='Wijnand Modderman',
