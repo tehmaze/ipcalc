@@ -523,7 +523,7 @@ class Network(IP):
         192.168.114.2
         192.168.114.3
         '''
-        for ip in [IP(long(self)+x) for x in xrange(0, self.size())]:
+        for ip in (IP(long(self)+x) for x in xrange(0, self.size())):
             yield ip
 
     def has_key(self, ip):
