@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 '''
 ====================================
  :mod:`ipcalc` IP subnet calculator
@@ -50,10 +52,11 @@ I wish to thank the following people for their input:
  * Peter van Dijk (Habbie)
  * Hans van Kranenburg (Knorrie)
  * Jeroen Habraken (VeXocide)
+ * Torbjörn Lönnemark
 
 '''
 
-__version__ = '0.4'
+__version__ = '0.4.1'
 
 import types, socket
 
