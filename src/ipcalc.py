@@ -155,7 +155,7 @@ class IP(object):
             # If string is in CIDR notation
             if '/' in ip:
                 ip, mask = ip.split('/', 1)
-                self.mask = int(mask)
+                self.mask = mask
             self.v = version or 0
             self.dq = ip
             self.ip = self._dqtoi(ip)
@@ -163,6 +163,11 @@ class IP(object):
         # Netmask defaults to one ip
         if self.mask is None:
             self.mask = self.v == 4 and 32 or 128
+        # Netmask is calculated
+        elif type(self.mask) == types.StringType and ('.' in self.mask or ':' in self.mask ):
+            self.mask = self._mask_to_count(self.mask)
+        else:
+            self.mask = int(mask)
         # Validate subnet size
         if self.v == 6:
             self.dq = self._itodq(self.ip)
@@ -171,6 +176,15 @@ class IP(object):
         elif self.v == 4:
             if self.mask < 0 or self.mask > 32:
                 raise ValueError, "IPv4 subnet size must be between 0 and 32"
+
+    def _mask_to_count(self, mask):
+        limit = 128 if ':' in mask else 32
+        # take the complement of the binary rep
+        inverted = ~ self._dqtoi(mask)
+        count = 0
+        while(inverted & 2**count ):
+            count += 1
+        return limit-count
 
     def bin(self):
         '''
@@ -560,7 +574,10 @@ if __name__ == '__main__':
         ('192.168.114.42', 23, ['192.168.0.1', '192.168.114.128', '10.0.0.1']),
         ('123::', 128, ['123:456::', '::1', '123::456']),
         ('::42', 64, ['::1', '1::']),
-        ('2001:dead:beef:1:c01d:c01a::', 48, ['2001:dead:beef:babe::'])
+        ('2001:dead:beef:1:c01d:c01a::', 48, ['2001:dead:beef:babe::']),
+        ('10.10.0.0', '255.255.255.0', ['10.10.0.20', '10.10.10.20']),
+        ('2001:dead:beef:1:c01d:c01a::', 'ffff:ffff:ffff::', ['2001:dead:beef:babe::']),
+        ('10.10.0.0/255.255.240.0', None, ['10.10.0.20', '10.10.250.0'])
         ]
 
     for ip, mask, test_ip in tests:
