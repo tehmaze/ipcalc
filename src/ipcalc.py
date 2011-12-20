@@ -58,7 +58,7 @@ I wish to thank the following people for their input:
 
 __version__ = '0.4.1'
 
-import types, socket
+import socket
 
 
 class IP(object):
@@ -143,7 +143,7 @@ class IP(object):
             self.dq = ip.dq
             self.v = ip.v
             self.mask = ip.mask
-        elif type(ip) in [types.IntType, types.LongType]:
+        elif type(ip) in [int, long]:
             self.ip = long(ip)
             if self.ip <= 0xffffffff:
                 self.v = version or 4
@@ -152,10 +152,10 @@ class IP(object):
                 self.v = version or 4
                 self.dq = self._itodq(ip)
         else:
-            # If string is in CIDR notation
+            # If string is in CIDR or netmask notation
             if '/' in ip:
                 ip, mask = ip.split('/', 1)
-                self.mask = int(mask)
+                self.mask = mask
             self.v = version or 0
             self.dq = ip
             self.ip = self._dqtoi(ip)
@@ -163,6 +163,19 @@ class IP(object):
         # Netmask defaults to one ip
         if self.mask is None:
             self.mask = self.v == 4 and 32 or 128
+        # Netmask is numeric CIDR subnet
+        elif type(self.mask) in [int, long] or self.mask.isdigit():
+            self.mask = int(mask)
+        # Netmask is in subnet notation
+        elif isinstance(self.mask, basestring):
+            limit = [32, 128][int(':' in self.mask)]
+            inverted = ~self._dqtoi(self.mask)
+            count = 0
+            while inverted & pow(2, count):
+                count += 1
+            self.mask = (limit - count)
+        else:
+            raise ValueError, "Invlid netmask"
         # Validate subnet size
         if self.v == 6:
             self.dq = self._itodq(self.ip)
@@ -560,7 +573,10 @@ if __name__ == '__main__':
         ('192.168.114.42', 23, ['192.168.0.1', '192.168.114.128', '10.0.0.1']),
         ('123::', 128, ['123:456::', '::1', '123::456']),
         ('::42', 64, ['::1', '1::']),
-        ('2001:dead:beef:1:c01d:c01a::', 48, ['2001:dead:beef:babe::'])
+        ('2001:dead:beef:1:c01d:c01a::', 48, ['2001:dead:beef:babe::']),
+        ('10.10.0.0', '255.255.255.0', ['10.10.0.20', '10.10.10.20']),
+        ('2001:dead:beef:1:c01d:c01a::', 'ffff:ffff:ffff::', ['2001:dead:beef:babe::']),
+        ('10.10.0.0/255.255.240.0', None, ['10.10.0.20', '10.10.250.0']),
         ]
 
     for ip, mask, test_ip in tests:
