@@ -3,13 +3,16 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
   "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 
+
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Ipcalc &mdash; ipcalc v0.4 documentation</title>
+    <title>Ipcalc &mdash; ipcalc 0.4 documentation</title>
+    
     <link rel="stylesheet" href="_static/default.css" type="text/css" />
     <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
         URL_ROOT:    '',
@@ -22,7 +25,7 @@
     <script type="text/javascript" src="_static/jquery.js"></script>
     <script type="text/javascript" src="_static/underscore.js"></script>
     <script type="text/javascript" src="_static/doctools.js"></script>
-    <link rel="top" title="ipcalc v0.4 documentation" href="#" /> 
+    <link rel="top" title="ipcalc 0.4 documentation" href="#" /> 
   </head>
   <body>
     <div class="related">
@@ -34,7 +37,7 @@
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="#">ipcalc v0.4 documentation</a> &raquo;</li> 
+        <li><a href="#">ipcalc 0.4 documentation</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -95,22 +98,22 @@ both IPv4 and IPv6 CIDR notation.</p>
 <col width="86%" />
 </colgroup>
 <thead valign="bottom">
-<tr><th class="head">Date</th>
+<tr class="row-odd"><th class="head">Date</th>
 <th class="head">Changes</th>
 </tr>
 </thead>
 <tbody valign="top">
-<tr><td>2009-04-11</td>
+<tr class="row-even"><td>2009-04-11</td>
 <td>Added docstrings.</td>
 </tr>
-<tr><td>2009-03-23</td>
+<tr class="row-odd"><td>2009-03-23</td>
 <td>Added IPv4 short-hand form support, thanks to VeXocide.</td>
 </tr>
-<tr><td>2007-10-26</td>
+<tr class="row-even"><td>2007-10-26</td>
 <td>Added IPv6 support, as well as a lot of other functions,
 refactored the calculations.</td>
 </tr>
-<tr><td>2007-10-25</td>
+<tr class="row-odd"><td>2007-10-25</td>
 <td>Initial writeup, because I could not find any other workable
 implementation.</td>
 </tr>
@@ -153,6 +156,7 @@ implementation.</td>
 <li>Peter van Dijk (Habbie)</li>
 <li>Hans van Kranenburg (Knorrie)</li>
 <li>Jeroen Habraken (VeXocide)</li>
+<li>Torbjörn Lönnemark</li>
 </ul>
 </dd>
 </dl>
@@ -164,7 +168,7 @@ implementation.</td>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip</strong> (<a class="reference internal" href="#ipcalc.IP" title="ipcalc.IP"><tt class="xref py py-class docutils literal"><span class="pre">IP</span></tt></a> or str or long or int) &#8211; the ip address</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip</strong> (<a class="reference internal" href="#ipcalc.IP" title="ipcalc.IP"><tt class="xref py py-class docutils literal"><span class="pre">IP</span></tt></a> or str or long or int) &#8211; the ip address</td>
 </tr>
 </tbody>
 </table>
@@ -270,7 +274,7 @@ for IPv4-compat (::/96) and 6-to-4 (2002::/16) addresses.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
 <li><strong>ip</strong> (<a class="reference internal" href="#ipcalc.IP" title="ipcalc.IP"><tt class="xref py py-class docutils literal"><span class="pre">IP</span></tt></a> or str or long or int) &#8211; network address</li>
 <li><strong>mask</strong> (<em>int or str</em>) &#8211; netmask</li>
 </ul>
@@ -302,7 +306,7 @@ for IPv4-compat (::/96) and 6-to-4 (2002::/16) addresses.</p>
 <col class="field-name" />
 <col class="field-body" />
 <tbody valign="top">
-<tr class="field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip</strong> (<a class="reference internal" href="#ipcalc.IP" title="ipcalc.IP"><tt class="xref py py-class docutils literal"><span class="pre">IP</span></tt></a> or str or long or int) &#8211; the ip address</td>
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>ip</strong> (<a class="reference internal" href="#ipcalc.IP" title="ipcalc.IP"><tt class="xref py py-class docutils literal"><span class="pre">IP</span></tt></a> or str or long or int) &#8211; the ip address</td>
 </tr>
 </tbody>
 </table>
@@ -416,7 +420,7 @@ for IPv4-compat (::/96) and 6-to-4 (2002::/16) addresses.</p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="search.html" method="get">
-      <input type="text" name="q" size="18" />
+      <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
       <input type="hidden" name="area" value="default" />
@@ -439,12 +443,12 @@ for IPv4-compat (::/96) and 6-to-4 (2002::/16) addresses.</p>
         <li class="right" >
           <a href="py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
-        <li><a href="#">ipcalc v0.4 documentation</a> &raquo;</li> 
+        <li><a href="#">ipcalc 0.4 documentation</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">
         &copy; Copyright 2009, Wijnand Modderman.
-      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.0.7.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
     </div>
   </body>
 </html>
