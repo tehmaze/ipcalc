@@ -143,7 +143,7 @@ class IP(object):
             self.dq = ip.dq
             self.v = ip.v
             self.mask = ip.mask
-        elif type(ip) in [int, long]:
+        elif isinstance(ip, (int, long)):
             self.ip = long(ip)
             if self.ip <= 0xffffffff:
                 self.v = version or 4
@@ -164,25 +164,25 @@ class IP(object):
         if self.mask is None:
             self.mask = self.v == 4 and 32 or 128
         # Netmask is numeric CIDR subnet
-        elif type(self.mask) in [int, long] or self.mask.isdigit():
-            self.mask = int(mask)
+        elif isinstance(self.mask, (int, long)) or self.mask.isdigit():
+            self.mask = int(self.mask)
         # Netmask is in subnet notation
         elif isinstance(self.mask, basestring):
-            limit = [32, 128][int(':' in self.mask)]
+            limit = [32, 128][':' in self.mask]
             inverted = ~self._dqtoi(self.mask)
             count = 0
-            while inverted & pow(2, count):
+            while inverted & 2**count:
                 count += 1
             self.mask = (limit - count)
         else:
-            raise ValueError, "Invlid netmask"
+            raise ValueError, "Invalid netmask"
         # Validate subnet size
         if self.v == 6:
             self.dq = self._itodq(self.ip)
-            if self.mask < 0 or self.mask > 128:
+            if not 0 <= self.mask <= 128:
                 raise ValueError, "IPv6 subnet size must be between 0 and 128"
         elif self.v == 4:
-            if self.mask < 0 or self.mask > 32:
+            if not 0 <= self.mask <= 32:
                 raise ValueError, "IPv4 subnet size must be between 0 and 32"
 
     def bin(self):
@@ -358,8 +358,8 @@ class IP(object):
         Return a new <IP> object with a copy of this one.
 
         >>> ip = IP('127.0.0.1')
-        >>> ip.clone()
-        <ipcalc.IP object at 0xb7d4d18c>
+        >>> ip.clone() # doctest: +ELLIPSIS
+        <ipcalc.IP object at 0x...>
         '''
         return IP(self)
 
