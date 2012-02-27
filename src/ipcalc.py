@@ -358,8 +358,8 @@ class IP(object):
         Return a new <IP> object with a copy of this one.
 
         >>> ip = IP('127.0.0.1')
-        >>> ip.clone()
-        <ipcalc.IP object at 0xb7d4d18c>
+        >>> ip.clone() # doctest: +ELLIPSIS
+        <ipcalc.IP object at 0x...>
         '''
         return IP(self)
 
