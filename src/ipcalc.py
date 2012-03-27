@@ -138,7 +138,9 @@ class IP(object):
         self.mask = mask
         self.v = 0
         # Parse input
-        if isinstance(ip, IP):
+        if ip is None:
+            raise ValueError, "Can not pass None"
+        elif isinstance(ip, IP):
             self.ip = ip.ip
             self.dq = ip.dq
             self.v = ip.v
