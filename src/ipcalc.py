@@ -531,7 +531,7 @@ class Network(IP):
         '''
         Generate a range of ip addresses within the network.
 
-        >>> for ip in Network('192.168.114.0.40'):
+        >>> for ip in Network('192.168.114.0/30'):
         ...     print str(ip)
         ... 
         192.168.114.0
