@@ -302,7 +302,7 @@ class IP(object):
             if len(q) > 4:
                 raise ValueError, "%r: IPv4 address invalid: more than 4 bytes" % dq
             for x in q:
-                if not 0 < int(x) < 255:
+                if not 0 <= int(x) < 255:
                     raise ValueError, "%r: IPv4 address invalid: bytes should be between 0 and 255" % dq
             while len(q) < 4:
                 q.insert(1, '0')
