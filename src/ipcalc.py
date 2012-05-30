@@ -285,7 +285,7 @@ class IP(object):
             for h in hx:
                 if len(h) < 4:
                     h = '%04x' % int(h, 16)
-                if not 0 < int(h, 16) < 0xffff:
+                if not 0 <= int(h, 16) < 0xffff:
                     raise ValueError, "%r: IPv6 address invalid: hextets should be between 0x0000 and 0xffff" % dq
                 ip += h
             self.v = 6
