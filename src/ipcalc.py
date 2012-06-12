@@ -56,7 +56,7 @@ I wish to thank the following people for their input:
 
 '''
 
-__version__ = '0.5'
+__version__ = '0.5.1'
 
 import socket
 
@@ -285,7 +285,7 @@ class IP(object):
             for h in hx:
                 if len(h) < 4:
                     h = '%04x' % int(h, 16)
-                if 0 > int(h, 16) > 0xffff:
+                if not 0 <= int(h, 16) <= 0xffff:
                     raise ValueError, "%r: IPv6 address invalid: hextets should be between 0x0000 and 0xffff" % dq
                 ip += h
             self.v = 6
@@ -302,7 +302,7 @@ class IP(object):
             if len(q) > 4:
                 raise ValueError, "%r: IPv4 address invalid: more than 4 bytes" % dq
             for x in q:
-                if 0 > int(x) > 255:
+                if not 0 <= int(x) <= 255:
                     raise ValueError, "%r: IPv4 address invalid: bytes should be between 0 and 255" % dq
             while len(q) < 4:
                 q.insert(1, '0')
