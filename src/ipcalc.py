@@ -61,6 +61,29 @@ __version__ = '0.5.1'
 import socket
 
 
+try:
+    bin(42)
+except NameError:
+    def bin(x):
+        '''
+        Stringifies an int or long in base 2.
+        '''
+        if x < 0: 
+            return '-' + bin(-x)
+        out = []
+        if x == 0: 
+            out.append('0')
+        while x > 0:
+            out.append('01'[x & 1])
+            x >>= 1
+            pass
+        try: 
+            return '0b' + ''.join(reversed(out))
+        except NameError, ne2: 
+            out.reverse()
+        return '0b' + ''.join(out) 
+
+
 class IP(object):
     '''
     Represents a single IP address.
@@ -195,10 +218,7 @@ class IP(object):
         >>> print ip.bin()
         01111111000000000000000000000001
         '''
-        h = hex(self.ip).lower().rstrip('l')
-        b = ''.join(self._bitmask[x] for x in h[2:])
-        l = self.v == 4 and 32 or 128
-        return ''.join('0' for x in xrange(len(b), l)) + b
+        return bin(self.ip).split('b')[1].rjust(self.mask, '0')
 
     def hex(self):
         '''
