@@ -39,7 +39,7 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'ipcalc'
-copyright = u'2009, Wijnand Modderman'
+copyright = u'2009, Wijnand Modderman-Lenstra'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the
@@ -174,7 +174,7 @@ htmlhelp_basename = 'ipcalcdoc'
 # (source start file, target name, title, author, documentclass [howto/manual]).
 latex_documents = [
   ('index', 'ipcalc.tex', u'ipcalc Documentation',
-   u'Wijnand Modderman', 'manual'),
+   u'Wijnand Modderman-Lenstra', 'manual'),
 ]
 
 # The name of an image file (relative to this directory) to place at the top of

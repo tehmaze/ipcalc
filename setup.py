@@ -39,10 +39,15 @@ Bugs/Features
 =============
 
 You can issue a ticket in GitHub: https://github.com/tehmaze/ipcalc/issues
+
+Documentation
+=============
+
+Documentation is available from http://ipcalc.rtfd.org/
 ''',
-      author='Wijnand Modderman',
-      author_email='python@tehmaze.com',
-      url='http://tehmaze.github.com/ipcalc',
+      author='Wijnand Modderman-Lenstra',
+      author_email='maze@pyth0n.org',
+      url='http://tehmaze.github.com/ipcalc/',
       packages = [''],
       package_dir = {'': 'src'},
      )

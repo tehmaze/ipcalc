@@ -4,33 +4,13 @@
 ====================================
  :mod:`ipcalc` IP subnet calculator
 ====================================
-.. moduleauthor:: Wijnand Modderman <http://tehmaze.com/>
+.. moduleauthor:: Wijnand Modderman-Lenstra <maze@pyth0n.org>
 .. note:: BSD License
 
 About
 =====
 
 This module allows you to perform network calculations.
-
-Changelog
-=========
-
-    ========== ===============================================================
-    Date       Changes
-    ========== ===============================================================
-    2009-04-11 Added docstrings.
-    2009-03-23 Added IPv4 short-hand form support, thanks to VeXocide.
-    2007-10-26 Added IPv6 support, as well as a lot of other functions, 
-               refactored the calculations.
-    2007-10-25 Initial writeup, because I could not find any other workable
-               implementation.
-    ========== ===============================================================
-
-Todo
-====
-
-Todo:
- * add CLI parser
 
 References
 ==========
