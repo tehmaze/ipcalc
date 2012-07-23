@@ -154,7 +154,7 @@ class IP(object):
                 self.v = version or 4
                 self.dq = self._itodq(ip)
             else:
-                self.v = version or 4
+                self.v = version or 6
                 self.dq = self._itodq(ip)
         else:
             # If string is in CIDR or netmask notation
@@ -541,8 +541,10 @@ class Network(IP):
         192.168.114.2
         192.168.114.3
         '''
-        for ip in (IP(long(self)+x) for x in xrange(0, self.size())):
-            yield ip
+        x = 0L
+        while x < self.size():
+            x += 1
+            yield IP(long(self)+x)
 
     def has_key(self, ip):
         '''
