@@ -529,13 +529,25 @@ class Network(IP):
     def __eq__(self, other):
         return self.size() == IP(other).size()
 
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            # Work-around IPv6 subnets being huge. Slice indices don't like
+            # long int.
+            if self.size().bit_length() > 30:
+                indices = key.indices((1<<30) - 1)
+            else:
+                indices = key.indices(self.size() - 1)
+            return tuple([IP(long(self)+x) for x in xrange(*indices)])
+        else:
+            return IP(long(self)+key)
+
     def __iter__(self):
         '''
         Generate a range of ip addresses within the network.
 
         >>> for ip in Network('192.168.114.0/30'):
         ...     print str(ip)
-        ... 
+        ...
         192.168.114.0
         192.168.114.1
         192.168.114.2
@@ -543,15 +555,15 @@ class Network(IP):
         '''
         x = 0L
         while x < self.size():
-            x += 1
             yield IP(long(self)+x)
+            x += 1L
 
     def has_key(self, ip):
         '''
         Check if the given ip is part of the network.
 
         :param ip: the ip address
-        :type ip: :class:`IP` or str or long or int 
+        :type ip: :class:`IP` or str or long or int
 
         >>> net = Network('192.0.2.0/24')
         >>> net.has_key('192.168.2.0')
