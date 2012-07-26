@@ -533,11 +533,14 @@ class Network(IP):
         if isinstance(key, slice):
             # Work-around IPv6 subnets being huge. Slice indices don't like
             # long int.
-            if self.size().bit_length() > 30:
-                indices = key.indices((1<<30) - 1)
-            else:
-                indices = key.indices(self.size() - 1)
-            return tuple([IP(long(self)+x) for x in xrange(*indices)])
+            x = key.start or 0
+            slice_stop = (key.stop or self.size()) - 1
+            slice_step = key.step or 1
+            arr = list()
+            while x < slice_stop:
+                arr.append(IP(long(self)+x))
+                x += slice_step
+            return tuple(arr)
         else:
             return IP(long(self)+key)
 
