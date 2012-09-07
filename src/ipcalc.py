@@ -422,6 +422,16 @@ class IP(object):
             return self
 
     def to_reverse(self):
+        '''
+        Convert the IP address to a PTR record in .in-addr.arpa for IPv4 and
+        .ip6.arpa for IPv6 addresses.
+
+        >>> ip = IP('192.0.2.42')
+        >>> print ip.to_reverse()
+        42.2.0.192.in-addr.arpa
+        >>> print ip.to_ipv6().to_reverse()
+        0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.a.2.2.0.0.0.0.c.2.0.0.2.ip6.arpa
+        '''
         if self.v == 4:
             return '.'.join(list(self.dq.split('.')[::-1]) + ['in-addr', 'arpa'])
         else:
