@@ -28,15 +28,16 @@ Thanks
 ======
 
 I wish to thank the following people for their input:
- * Bastiaan (trbs)
+ * Bas van Oostveen (trbs)
  * Peter van Dijk (Habbie)
  * Hans van Kranenburg (Knorrie)
  * Jeroen Habraken (VeXocide)
- * Torbjörn Lönnemark
+ * Torbjörn Lönnemark (tobbez)
+ * Anthony Cornehl (twinshadow)
 
 '''
 
-__version__ = '0.5.2'
+__version__ = '0.6'
 
 import socket
 
