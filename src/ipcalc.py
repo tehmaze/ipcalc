@@ -154,7 +154,7 @@ class IP(object):
                 self.v = version or 4
                 self.dq = self._itodq(ip)
             else:
-                self.v = version or 4
+                self.v = version or 6
                 self.dq = self._itodq(ip)
         else:
             # If string is in CIDR or netmask notation
@@ -535,27 +535,44 @@ class Network(IP):
     def __eq__(self, other):
         return self.size() == IP(other).size()
 
+    def __getitem__(self, key):
+        if isinstance(key, slice):
+            # Work-around IPv6 subnets being huge. Slice indices don't like
+            # long int.
+            x = key.start or 0
+            slice_stop = (key.stop or self.size()) - 1
+            slice_step = key.step or 1
+            arr = list()
+            while x < slice_stop:
+                arr.append(IP(long(self)+x))
+                x += slice_step
+            return tuple(arr)
+        else:
+            return IP(long(self)+key)
+
     def __iter__(self):
         '''
         Generate a range of ip addresses within the network.
 
         >>> for ip in Network('192.168.114.0/30'):
         ...     print str(ip)
-        ... 
+        ...
         192.168.114.0
         192.168.114.1
         192.168.114.2
         192.168.114.3
         '''
-        for ip in (IP(long(self)+x) for x in xrange(0, self.size())):
-            yield ip
+        x = 0L
+        while x < self.size():
+            yield IP(long(self)+x)
+            x += 1L
 
     def has_key(self, ip):
         '''
         Check if the given ip is part of the network.
 
         :param ip: the ip address
-        :type ip: :class:`IP` or str or long or int 
+        :type ip: :class:`IP` or str or long or int
 
         >>> net = Network('192.0.2.0/24')
         >>> net.has_key('192.168.2.0')
