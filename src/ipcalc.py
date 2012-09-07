@@ -420,6 +420,12 @@ class IP(object):
         else:
             return self
 
+    def to_reverse(self):
+        if self.v == 4:
+            return '.'.join(list(self.dq.split('.')[::-1]) + ['in-addr', 'arpa'])
+        else:
+            return '.'.join(list(self.hex())[::-1] + ['ip6', 'arpa'])
+
     def to_tuple(self):
         '''
         Used for comparisons.
@@ -598,6 +604,8 @@ if __name__ == '__main__':
             print 'network...:', net.network()
             print 'broadcast.:', net.broadcast()
         print 'first host:', net.host_first()
+        print 'reverse...:', net.host_first().to_reverse()
         print 'last host.:', net.host_last()
+        print 'reverse...:', net.host_last().to_reverse()
         for ip in test_ip:
             print '%s in network: ' % ip, ip in net
