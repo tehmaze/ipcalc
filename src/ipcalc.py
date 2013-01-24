@@ -39,8 +39,6 @@ I wish to thank the following people for their input:
 
 __version__ = '0.6'
 
-import socket
-
 
 try:
     bin(42)
@@ -60,9 +58,9 @@ except NameError:
             pass
         try: 
             return '0b' + ''.join(reversed(out))
-        except NameError, ne2: 
+        except NameError:
             out.reverse()
-        return '0b' + ''.join(out) 
+        return '0b' + ''.join(out)
 
 
 class IP(object):
@@ -236,7 +234,7 @@ class IP(object):
         CLASS A
         '''
         b = self.bin()
-        l = self.v == 4 and 32 or 128
+        self.v == 4 and 32 or 128
         for i in range(len(b), 0, -1):
             if self._range[self.v].has_key(b[:i]):
                 return self._range[self.v][b[:i]]
