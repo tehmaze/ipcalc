@@ -21,10 +21,8 @@ Example Usage
     >>> for x in ipcalc.Network('172.16.42.0/30'):
     ...     print str(x)
     ...
-    172.16.42.0
     172.16.42.1
     172.16.42.2
-    172.16.42.3
     >>> subnet = ipcalc.Network('2001:beef:babe::/48')
     >>> print str(subnet.network())
     2001:beef:babe:0000:0000:0000:0000:0000
