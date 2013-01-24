@@ -530,17 +530,24 @@ class Network(IP):
         '''
         First available host in this subnet.
         '''
-        if (self.version() == 4 and self.mask == 32) or (self.version() == 6 and self.mask == 128):
+        if (self.version() == 4 and self.mask > 30) or \
+            (self.version() == 6 and self.mask > 126):
             return self
-        return IP(long(self.network())+1, version=self.version())
+        else:
+            return IP(self.network_long() + 1, version=self.version())
 
     def host_last(self):
         '''
         Last available host in this subnet.
         '''
-        if (self.version() == 4 and self.mask == 32) or (self.version() == 6 and self.mask == 128):
+        if (self.version() == 4 and self.mask == 32) or \
+            (self.version() == 6 and self.mask == 128):
             return self
-        return IP(long(self.broadcast())-1, version=self.version())
+        elif (self.version() == 4 and self.mask == 31) or \
+            (self.version() == 6 and self.mask == 127):
+            return IP(long(self) + 1, version=self.version())
+        else:
+            return IP(self.broadcast_long() - 1, version=self.version())
 
     def in_network(self, other):
         '''
@@ -592,7 +599,8 @@ class Network(IP):
 
     def __iter__(self):
         '''
-        Generate a range of ip addresses within the network.
+        Generate a range of usable host IP addresses within the network, as IP
+        objects.
 
         >>> for ip in Network('192.168.114.0/30'):
         ...     print str(ip)
@@ -602,10 +610,12 @@ class Network(IP):
         192.168.114.2
         192.168.114.3
         '''
-        x = 0L
-        while x < self.size():
-            yield IP(long(self)+x)
-            x += 1L
+
+        curr = long(self.host_first())
+        stop = long(self.host_last())
+        while curr <= stop:
+            yield IP(curr)
+            curr += 1
 
     def has_key(self, ip):
         '''
