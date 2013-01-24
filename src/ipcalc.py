@@ -38,7 +38,7 @@ I wish to thank the following people for their input:
 
 '''
 
-__version__ = '0.6'
+__version__ = '1.0.0'
 
 
 try:
