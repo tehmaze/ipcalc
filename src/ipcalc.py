@@ -459,30 +459,50 @@ class Network(IP):
 
     def netmask(self):
         '''
-        Network netmask derived from subnet size.
+        Network netmask derived from subnet size, as IP object.
 
         >>> localnet = Network('127.0.0.1/8')
         >>> print localnet.netmask()
         255.0.0.0
         '''
+        return IP(self.netmask_long(), version=self.version())
+
+    def netmask_long(self):
+        '''
+        Network netmask derived from subnet size, as long.
+
+        >>> localnet = Network('127.0.0.1/8')
+        >>> print localnet.netmask_long()
+        4278190080
+        '''
         if self.version() == 4:
-            return IP((0xffffffffL >> (32-self.mask)) << (32-self.mask), version=self.version())
+            return (0xffffffffL >> (32-self.mask)) << (32-self.mask)
         else:
-            return IP((0xffffffffffffffffffffffffffffffffL >> (128-self.mask)) << (128-self.mask), version=self.version())
+            return (0xffffffffffffffffffffffffffffffffL >> (128-self.mask)) << (128-self.mask)
 
     def network(self):
         '''
-        Network address.
+        Network address, as IP object.
 
         >>> localnet = Network('127.128.99.3/8')
         >>> print localnet.network()
         127.0.0.0
         '''
-        return IP(self.ip & long(self.netmask()), version=self.version())
+        return IP(self.network_long(), version=self.version())
+
+    def network_long(self):
+        '''
+        Network address, as long.
+
+        >>> localnet = Network('127.128.99.3/8')
+        >>> print localnet.network_long()
+        2130706432
+        '''
+        return self.ip & self.netmask_long()
 
     def broadcast(self):
         '''
-        Broadcast address.
+        Broadcast address, as IP object.
 
         >>> localnet = Network('127.0.0.1/8')
         >>> print localnet.broadcast()
@@ -490,10 +510,21 @@ class Network(IP):
         '''
         # XXX: IPv6 doesn't have a broadcast address, but it's used for other 
         #      calculations such as <Network.host_last>.
+        return IP(self.broadcast_long(), version=self.version())
+
+    def broadcast_long(self):
+        '''
+        Broadcast address, as long.
+
+        >>> localnet = Network('127.0.0.1/8')
+        >>> print localnet.broadcast_long()
+        2147483647
+        '''
         if self.version() == 4:
-            return IP(long(self.network()) | (0xffffffff - long(self.netmask())), version=self.version())
+            return self.network_long() | (0xffffffffL - self.netmask_long())
         else:
-            return IP(long(self.network()) | (0xffffffffffffffffffffffffffffffffL - long(self.netmask())), version=self.version())
+            return self.network_long() \
+                | (0xffffffffffffffffffffffffffffffffL - self.netmask_long())
 
     def host_first(self):
         '''
