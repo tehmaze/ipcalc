@@ -270,10 +270,10 @@ class IP(object):
             elif len(hx) < 8:
                 # No :: in address
                 if not '' in hx:
-                    raise ValueError('%s: IPv6 address invalid: ' +
+                    raise ValueError('%s: IPv6 address invalid: '
                         'compressed format malformed' % dq)
                 elif not (dq.startswith('::') or dq.endswith('::')) and len([x for x in hx if x == '']) > 1:
-                    raise ValueError('%s: IPv6 address invalid: ' +
+                    raise ValueError('%s: IPv6 address invalid: '
                         'compressed format malformed' % dq)
                 ix = hx.index('')
                 px = len(hx[ix + 1:])
@@ -282,7 +282,7 @@ class IP(object):
             elif dq.endswith('::'):
                 pass
             elif '' in hx:
-                raise ValueError('%s: IPv6 address invalid: ' +
+                raise ValueError('%s: IPv6 address invalid: '
                     'compressed format detected in full notation' % dq())
             ip = ''
             hx = [x == '' and '0' or x for x in hx]
@@ -290,7 +290,7 @@ class IP(object):
                 if len(h) < 4:
                     h = '%04x' % int(h, 16)
                 if not 0 <= int(h, 16) <= 0xffff:
-                    raise ValueError('%r: IPv6 address invalid: ' +
+                    raise ValueError('%r: IPv6 address invalid: '
                         'hexlets should be between 0x0000 and 0xffff' % dq)
                 ip += h
             self.v = 6
@@ -305,11 +305,11 @@ class IP(object):
             q = dq.split('.')
             q.reverse()
             if len(q) > 4:
-                raise ValueError('%s: IPv4 address invalid: ' +
+                raise ValueError('%s: IPv4 address invalid: '
                     'more than 4 bytes' % dq)
             for x in q:
                 if not 0 <= int(x) <= 255:
-                    raise ValueError('%s: IPv4 address invalid: ' +
+                    raise ValueError('%s: IPv4 address invalid: '
                         'bytes should be between 0 and 255' % dq)
             while len(q) < 4:
                 q.insert(1, '0')
@@ -394,7 +394,7 @@ class IP(object):
             elif long(self) & 0x20020000000000000000000000000000L:
                 return IP((long(self) - 0x20020000000000000000000000000000L) >> 80, version=4)
             else:
-                return ValueError('%s: IPv6 address is not IPv4 compatible, ' +
+                return ValueError('%s: IPv6 address is not IPv4 compatible, '
                     'nor an 6-to-4 IP' % self.dq)
 
     @classmethod
