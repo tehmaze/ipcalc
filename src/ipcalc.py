@@ -380,7 +380,7 @@ class IP(object):
     def to_ipv4(self):
         '''
         Convert (an IPv6) IP address to an IPv4 address, if possible. Only works
-        for IPv4-compat (::/96) and 6-to-4 (2002::/16) addresses.
+        for IPv4-compat (::/96), IPv4-mapped (::ffff/96), and 6-to-4 (2002::/16) addresses.
 
         >>> ip = IP('2002:c000:022a::')
         >>> print ip.to_ipv4()
@@ -391,10 +391,12 @@ class IP(object):
         else:
             if self.bin().startswith('0' * 96):
                 return IP(long(self), version=4)
+            elif self.bin().startswith('0' * 80 + '1' * 16):
+                return IP(long(self) & 0xffffffff, version=4)
             elif long(self) & 0x20020000000000000000000000000000L:
                 return IP((long(self) - 0x20020000000000000000000000000000L) >> 80, version=4)
             else:
-                return ValueError('%s: IPv6 address is not IPv4 compatible, '
+                return ValueError('%s: IPv6 address is not IPv4 compatible or mapped, '
                     'nor an 6-to-4 IP' % self.dq)
 
     @classmethod
@@ -423,13 +425,21 @@ class IP(object):
         >>> ip = IP('192.0.2.42')
         >>> print ip.to_ipv6()
         2002:c000:022a:0000:0000:0000:0000:0000
+
+        >>> print ip.to_ipv6('compat')
+        0000:0000:0000:0000:0000:0000:c000:022a
+
+        >>> print ip.to_ipv6('mapped')
+        0000:0000:0000:0000:0000:ffff:c000:022a
         '''
-        assert type in ['6-to-4', 'compat'], 'Conversion type not supported'
+        assert type in ['6-to-4', 'compat', 'mapped'], 'Conversion type not supported'
         if self.v == 4:
             if type == '6-to-4':
                 return IP(0x20020000000000000000000000000000L | long(self) << 80, version=6)
             elif type == 'compat':
                 return IP(long(self), version=6)
+            elif type == 'mapped':
+                return IP(0xffff << 32 | long(self), version=6)
         else:
             return self
 
