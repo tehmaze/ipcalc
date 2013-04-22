@@ -42,26 +42,22 @@ __version__ = '1.0.0'
 
 
 try:
-    bin(42)
+    bin
 except NameError:
     def bin(x):
         '''
         Stringifies an int or long in base 2.
         '''
         if x < 0:
-            return '-' + bin(-x)
+            return '-%s' % bin(-x)
         out = []
         if x == 0:
             out.append('0')
         while x > 0:
             out.append('01'[x & 1])
             x >>= 1
-            pass
-        try:
-            return '0b' + ''.join(reversed(out))
-        except NameError:
-            out.reverse()
-        return '0b' + ''.join(out)
+        out.reverse()
+        return '0b%s' % ''.join(out)
 
 
 class IP(object):
