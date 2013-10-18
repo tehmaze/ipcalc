@@ -574,7 +574,7 @@ class Network(IP):
         Check if the given IP address is within this network.
         '''
         other = Network(other)
-        return long(other) >= long(self) and long(other) < long(self) + self.size() - other.size() + 1
+        return self.network_long() <= other.network_long() <= self.broadcast_long()
 
     def __contains__(self, ip):
         '''
