@@ -572,9 +572,19 @@ class Network(IP):
     def in_network(self, other):
         '''
         Check if the given IP address is within this network.
+        This function is deprecated, use check_collision instead.
         '''
+        print "Warning: this function is deprecated, use check_collision instead"
         other = Network(other)
         return self.network_long() <= other.network_long() <= self.broadcast_long()
+
+    def check_collision(self, other):
+        '''
+        Check another network against the given network and checks for IP collisions.
+        '''
+        other = Network(other)
+        return self.network_long() <= other.network_long() <= self.broadcast_long() or \
+            other.network_long() <= self.network_long() <= self.broadcast_long()
 
     def __contains__(self, ip):
         '''
