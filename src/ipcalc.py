@@ -41,6 +41,9 @@ I wish to thank the following people for their input:
 __version__ = '1.0.0'
 
 
+import warnings
+
+
 try:
     bin
 except NameError:
@@ -574,7 +577,9 @@ class Network(IP):
         Check if the given IP address is within this network.
         This function is deprecated, use check_collision instead.
         '''
-        print "Warning: this function is deprecated, use check_collision instead"
+        warnings.warn('%s.in_network is deprecated, use check_collision in '
+                      'stead' % (self.__class__.__name__,),
+                      DeprecationWarning)
         other = Network(other)
         return self.network_long() <= other.network_long() <= self.broadcast_long()
 
