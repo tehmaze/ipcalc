@@ -35,10 +35,11 @@ I wish to thank the following people for their input:
  * Jeroen Habraken (VeXocide)
  * Torbjörn Lönnemark (tobbez)
  * Anthony Cornehl (twinshadow)
+ * Florian Pelgrim (craneworks)
 
 '''
 
-__version__ = '1.0.0'
+__version__ = '1.1.0'
 
 
 import warnings
