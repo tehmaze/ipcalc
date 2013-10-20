@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-# pep8-ignore: E501
+# pep8-ignore: E501, E241
 
 '''
 ====================================
@@ -267,10 +267,10 @@ class IP(object):
                 # No :: in address
                 if not '' in hx:
                     raise ValueError('%s: IPv6 address invalid: '
-                        'compressed format malformed' % dq)
+                                     'compressed format malformed' % dq)
                 elif not (dq.startswith('::') or dq.endswith('::')) and len([x for x in hx if x == '']) > 1:
                     raise ValueError('%s: IPv6 address invalid: '
-                        'compressed format malformed' % dq)
+                                     'compressed format malformed' % dq)
                 ix = hx.index('')
                 px = len(hx[ix + 1:])
                 for x in xrange(ix + px + 1, 8):
@@ -279,7 +279,7 @@ class IP(object):
                 pass
             elif '' in hx:
                 raise ValueError('%s: IPv6 address invalid: '
-                    'compressed format detected in full notation' % dq())
+                                 'compressed format detected in full notation' % dq())
             ip = ''
             hx = [x == '' and '0' or x for x in hx]
             for h in hx:
@@ -287,7 +287,7 @@ class IP(object):
                     h = '%04x' % int(h, 16)
                 if not 0 <= int(h, 16) <= 0xffff:
                     raise ValueError('%r: IPv6 address invalid: '
-                        'hexlets should be between 0x0000 and 0xffff' % dq)
+                                     'hexlets should be between 0x0000 and 0xffff' % dq)
                 ip += h
             self.v = 6
             return long(ip, 16)
@@ -302,11 +302,11 @@ class IP(object):
             q.reverse()
             if len(q) > 4:
                 raise ValueError('%s: IPv4 address invalid: '
-                    'more than 4 bytes' % dq)
+                                 'more than 4 bytes' % dq)
             for x in q:
                 if not 0 <= int(x) <= 255:
                     raise ValueError('%s: IPv4 address invalid: '
-                        'bytes should be between 0 and 255' % dq)
+                                     'bytes should be between 0 and 255' % dq)
             while len(q) < 4:
                 q.insert(1, '0')
             self.v = 4
@@ -393,7 +393,7 @@ class IP(object):
                 return IP((long(self) - 0x20020000000000000000000000000000L) >> 80, version=4)
             else:
                 return ValueError('%s: IPv6 address is not IPv4 compatible or mapped, '
-                    'nor an 6-to-4 IP' % self.dq)
+                                  'nor an 6-to-4 IP' % self.dq)
 
     @classmethod
     def from_bin(cls, value):
@@ -572,9 +572,19 @@ class Network(IP):
     def in_network(self, other):
         '''
         Check if the given IP address is within this network.
+        This function is deprecated, use check_collision instead.
+        '''
+        print "Warning: this function is deprecated, use check_collision instead"
+        other = Network(other)
+        return self.network_long() <= other.network_long() <= self.broadcast_long()
+
+    def check_collision(self, other):
+        '''
+        Check another network against the given network and checks for IP collisions.
         '''
         other = Network(other)
-        return long(other) >= long(self) and long(other) < long(self) + self.size() - other.size() + 1
+        return self.network_long() <= other.network_long() <= self.broadcast_long() or \
+            other.network_long() <= self.network_long() <= self.broadcast_long()
 
     def __contains__(self, ip):
         '''
