@@ -602,7 +602,7 @@ class Network(IP):
         >>> '192.168.2.42' in Network('192.0.2.0/24')
         False
         '''
-        return self.in_network(ip)
+        return self.check_collision(ip)
 
     def __lt__(self, other):
         return self.size() < IP(other).size()
