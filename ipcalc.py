@@ -39,7 +39,7 @@ I wish to thank the following people for their input:
 
 '''
 
-__version__ = '1.1.0'
+__version__ = '1.1.1'
 
 
 import warnings

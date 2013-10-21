@@ -3,7 +3,7 @@
 from distutils.core import setup
 
 setup(name='ipcalc',
-      version='1.1.0',
+      version='1.1.1',
       description='IP subnet calculator',
       long_description='''
 About
