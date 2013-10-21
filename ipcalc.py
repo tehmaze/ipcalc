@@ -590,7 +590,7 @@ class Network(IP):
         '''
         other = Network(other)
         return self.network_long() <= other.network_long() <= self.broadcast_long() or \
-            other.network_long() <= self.network_long() <= self.broadcast_long()
+            other.network_long() <= self.network_long() <= other.broadcast_long()
 
     def __contains__(self, ip):
         '''
