@@ -28,15 +28,9 @@ References:
 Thanks
 ======
 
-I wish to thank the following people for their input:
- * Bas van Oostveen (trbs)
- * Peter van Dijk (Habbie)
- * Hans van Kranenburg (Knorrie)
- * Jeroen Habraken (VeXocide)
- * Torbjörn Lönnemark (tobbez)
- * Anthony Cornehl (twinshadow)
- * Florian Pelgrim (craneworks)
+Thanks to all who have contributed:
 
+https://github.com/tehmaze/ipcalc/graphs/contributors
 '''
 
 __version__ = '1.1.1'
