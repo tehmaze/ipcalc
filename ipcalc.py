@@ -580,7 +580,8 @@ class Network(IP):
         '''
         warnings.warn('%s.in_network is deprecated, use check_collision in '
                       'stead' % (self.__class__.__name__,),
-                      DeprecationWarning)
+                      DeprecationWarning,
+                      stacklevel=2)
         other = Network(other)
         return self.network_long() <= other.network_long() <= self.broadcast_long()
 
