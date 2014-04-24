@@ -351,6 +351,11 @@ class IP(object):
                         self.mask,
                         self.v)
 
+    def __hash__(self):
+        return hash(self.to_tuple())
+
+    hash = __hash__
+
     def __int__(self):
         return int(self.ip)
 
