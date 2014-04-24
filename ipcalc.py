@@ -337,6 +337,20 @@ class IP(object):
         '''
         return self.dq
 
+    def __repr__(self):
+        '''
+        Return canonical representation of the IP.
+
+        >>> ip = IP("::1")
+        >>> print repr(ip)
+        IP('0000:0000:0000:0000:0000:0000:0000:0001', mask=128, version=6)
+        '''
+        return "%s('%s', mask=%d, version=%d)" % (
+                        self.__class__.__name__,
+                        self.dq,
+                        self.mask,
+                        self.v)
+
     def __int__(self):
         return int(self.ip)
 
@@ -366,8 +380,16 @@ class IP(object):
         Return a new <IP> object with a copy of this one.
 
         >>> ip = IP('127.0.0.1')
-        >>> ip.clone() # doctest: +ELLIPSIS
-        <ipcalc.IP object at 0x...>
+        >>> ip2 = ip.clone()
+        >>> ip2
+        IP('127.0.0.1', mask=32, version=4)
+        >>> ip is ip2
+        False
+        >>> ip == ip2
+        True
+        >>> ip.mask = 24
+        >>> ip2.mask
+        32
         '''
         return IP(self)
 
