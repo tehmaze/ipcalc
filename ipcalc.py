@@ -343,13 +343,12 @@ class IP(object):
 
         >>> ip = IP("::1")
         >>> print repr(ip)
-        IP('0000:0000:0000:0000:0000:0000:0000:0001', mask=128, version=6)
+        IP('0000:0000:0000:0000:0000:0000:0000:0001', mask=128)
         '''
-        return "%s('%s', mask=%d, version=%d)" % (
+        return "%s('%s', mask=%d)" % (
                         self.__class__.__name__,
                         self.dq,
-                        self.mask,
-                        self.v)
+                        self.mask)
 
     def __hash__(self):
         return hash(self.to_tuple())
@@ -387,7 +386,7 @@ class IP(object):
         >>> ip = IP('127.0.0.1')
         >>> ip2 = ip.clone()
         >>> ip2
-        IP('127.0.0.1', mask=32, version=4)
+        IP('127.0.0.1', mask=32)
         >>> ip is ip2
         False
         >>> ip == ip2
