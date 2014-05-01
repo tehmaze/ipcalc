@@ -5,4 +5,4 @@ python:
 # command to run tests
 script:
  - python -v ipcalc.py
- - python -m doctests -v ipcalc.py
+ - python -m doctest -v ipcalc.py
