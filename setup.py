@@ -45,6 +45,6 @@ Documentation is available from http://ipcalc.rtfd.org/
 ''',
       author='Wijnand Modderman-Lenstra',
       author_email='maze@pyth0n.org',
-      url='http://tehmaze.github.com/ipcalc/',
+      url='https://github.com/tehmaze/ipcalc/',
       py_modules=['ipcalc'],
       )
