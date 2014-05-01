@@ -33,7 +33,7 @@ Thanks to all who have contributed:
 https://github.com/tehmaze/ipcalc/graphs/contributors
 '''
 
-__version__ = '1.1.1'
+__version__ = '1.1.2'
 
 
 import warnings
