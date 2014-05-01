@@ -30,3 +30,5 @@ Bugs/Features
 =============
 
 You can issue a ticket in GitHub: https://github.com/tehmaze/ipcalc/issues
+
+[![Build Status](https://travis-ci.org/tehmaze/ipcalc.svg?branch=master)](https://travis-ci.org/tehmaze/ipcalc)
