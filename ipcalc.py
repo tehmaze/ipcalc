@@ -677,10 +677,8 @@ class Network(IP):
         >>> for ip in Network('192.168.114.0/30'):
         ...     print str(ip)
         ...
-        192.168.114.0
         192.168.114.1
         192.168.114.2
-        192.168.114.3
         '''
 
         curr = long(self.host_first())
