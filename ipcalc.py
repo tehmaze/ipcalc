@@ -341,15 +341,19 @@ class IP(object):
         '''
         Return canonical representation of the IP.
 
-        >>> ip = IP("::1")
-        >>> print repr(ip)
-        IP('0000:0000:0000:0000:0000:0000:0000:0001', mask=128, version=6)
+        >>> repr(IP("::1"))
+        "IP('0000:0000:0000:0000:0000:0000:0000:0001')"
+        >>> repr(IP("::1/64"))
+        "IP('0000:0000:0000:0000:0000:0000:0000:0001/64')"
+        >>> repr(IP("1.2.3.4/29"))
+        "IP('1.2.3.4/29')"
         '''
-        return "%s('%s', mask=%d, version=%d)" % (
-                        self.__class__.__name__,
-                        self.dq,
-                        self.mask,
-                        self.v)
+        args = (self.__class__.__name__, self.dq, self.mask)
+        if (self.version(), self.mask) in [(4, 32), (6, 128)]:
+            fmt = "{0}('{1}')"
+        else:
+            fmt = "{0}('{1}/{2}')"
+        return fmt.format(*args)
 
     def __hash__(self):
         return hash(self.to_tuple())
@@ -387,7 +391,7 @@ class IP(object):
         >>> ip = IP('127.0.0.1')
         >>> ip2 = ip.clone()
         >>> ip2
-        IP('127.0.0.1', mask=32, version=4)
+        IP('127.0.0.1')
         >>> ip is ip2
         False
         >>> ip == ip2
@@ -499,7 +503,7 @@ class Network(IP):
 
     >>> localnet = Network('127.0.0.1/8')
     >>> print localnet
-    127.0.0.1
+    127.0.0.1/8
     '''
 
     def netmask(self):
@@ -613,6 +617,16 @@ class Network(IP):
         other = Network(other)
         return self.network_long() <= other.network_long() <= self.broadcast_long() or \
             other.network_long() <= self.network_long() <= other.broadcast_long()
+
+    def __str__(self):
+        '''
+        Return CIDR representation of the network.
+
+        >>> net = Network("::1/64")
+        >>> print str(net)
+        0000:0000:0000:0000:0000:0000:0000:0001/64
+        '''
+        return "%s/%d" % (self.dq, self.mask)
 
     def __contains__(self, ip):
         '''
