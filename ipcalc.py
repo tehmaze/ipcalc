@@ -36,6 +36,7 @@ https://github.com/tehmaze/ipcalc/graphs/contributors
 __version__ = '1.1.2'
 
 
+import re
 import warnings
 
 
@@ -342,13 +343,16 @@ class IP(object):
         Return canonical representation of the IP.
 
         >>> repr(IP("::1"))
-        "IP('0000:0000:0000:0000:0000:0000:0000:0001')"
-        >>> repr(IP("::1/64"))
-        "IP('0000:0000:0000:0000:0000:0000:0000:0001/64')"
+        "IP('::1')"
+        >>> repr(IP("fe80:0000:0000:0000:abde:3eff:ffab:0012/64"))
+        "IP('fe80::abde:3eff:ffab:12/64')"
         >>> repr(IP("1.2.3.4/29"))
         "IP('1.2.3.4/29')"
+        >>> repr(IP("127.0.0.1/8"))
+        "IP('127.0.0.1/8')"
         '''
-        args = (self.__class__.__name__, self.dq, self.mask)
+        dq = self.dq if self.v == 4 else self.to_compressed()
+        args = (self.__class__.__name__, dq, self.mask)
         if (self.version(), self.mask) in [(4, 32), (6, 128)]:
             fmt = "{0}('{1}')"
         else:
@@ -401,6 +405,60 @@ class IP(object):
         32
         '''
         return IP(self)
+
+    def to_compressed(self):
+        '''
+        Compress an IP address to its shortest possible compressed form.
+
+        >>> print IP('127.0.0.1').to_compressed()
+        127.1
+        >>> print IP('127.1.0.1').to_compressed()
+        127.1.1
+        >>> print IP('127.0.1.1').to_compressed()
+        127.0.1.1
+        >>> print IP('2001:1234:0000:0000:0000:0000:0000:5678').to_compressed()
+        2001:1234::5678
+        >>> print IP('1234:0000:0000:beef:0000:0000:0000:5678').to_compressed()
+        1234:0:0:beef::5678
+        >>> print IP('0000:0000:0000:0000:0000:0000:0000:0001').to_compressed()
+        ::1
+        >>> print IP('fe80:0000:0000:0000:0000:0000:0000:0000').to_compressed()
+        fe80::
+        '''
+        if self.v == 4:
+            quads = self.dq.split('.')
+            try:
+                zero = quads.index('0')
+                if zero == 1 and quads.index('0', zero + 1):
+                    quads.pop(zero)
+                    quads.pop(zero)
+                    return '.'.join(quads)
+                elif zero == 2:
+                    quads.pop(zero)
+                    return '.'.join(quads)
+            except ValueError:  # No zeroes
+                pass
+
+            return self.dq
+        else:
+            quads = map(lambda q: '%x' % (int(q, 16)), self.dq.split(':'))
+            quadc = ':%s:' % (':'.join(quads),)
+            zeros = [0, -1]
+
+            # Find the largest group of zeros
+            for match in re.finditer(r'(:[:0]+)', quadc):
+                count = len(match.group(1)) - 1
+                if count > zeros[0]:
+                    zeros = [count, match.start(1)]
+
+            count, where = zeros
+            if count:
+                quadc = quadc[:where] + ':' + quadc[where + count:]
+
+            quadc = re.sub(r'((^:)|(:$))', '', quadc)
+            quadc = re.sub(r'((^:)|(:$))', '::', quadc)
+
+            return quadc
 
     def to_ipv4(self):
         '''
