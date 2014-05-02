@@ -503,7 +503,7 @@ class Network(IP):
 
     >>> localnet = Network('127.0.0.1/8')
     >>> print localnet
-    127.0.0.1
+    127.0.0.1/8
     '''
 
     def netmask(self):
@@ -617,6 +617,16 @@ class Network(IP):
         other = Network(other)
         return self.network_long() <= other.network_long() <= self.broadcast_long() or \
             other.network_long() <= self.network_long() <= other.broadcast_long()
+
+    def __str__(self):
+        '''
+        Return CIDR representation of the network.
+
+        >>> net = Network("::1/64")
+        >>> print str(net)
+        0000:0000:0000:0000:0000:0000:0000:0001/64
+        '''
+        return "%s/%d" % (self.dq, self.mask)
 
     def __contains__(self, ip):
         '''
