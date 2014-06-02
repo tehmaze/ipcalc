@@ -38,6 +38,17 @@ __version__ = '1.1.2'
 
 import re
 import warnings
+import sys
+
+import six
+from six.moves import xrange
+
+MAX_IPV6 = (1 << 128) - 1
+MAX_IPV4 = (1 << 32) - 1
+SIX_TO_FOUR_MASK = (0x2002 << 112)
+
+if sys.version_info > (3, 0):
+    long = int
 
 
 try:
@@ -145,7 +156,7 @@ class IP(object):
             self.mask = ip.mask
         elif isinstance(ip, (int, long)):
             self.ip = long(ip)
-            if self.ip <= 0xffffffff:
+            if self.ip <= MAX_IPV4:
                 self.v = version or 4
                 self.dq = self._itodq(ip)
             else:
@@ -167,7 +178,7 @@ class IP(object):
         elif isinstance(self.mask, (int, long)) or self.mask.isdigit():
             self.mask = int(self.mask)
         # Netmask is in subnet notation
-        elif isinstance(self.mask, basestring):
+        elif isinstance(self.mask, six.string_types):
             limit = [32, 128][':' in self.mask]
             inverted = ~self._dqtoi(self.mask)
             count = 0
@@ -243,7 +254,7 @@ class IP(object):
         # hex notation
         if dq.startswith('0x'):
             ip = long(dq[2:], 16)
-            if ip > 0xffffffffffffffffffffffffffffffffL:
+            if ip > MAX_IPV6:
                 raise ValueError('%s: IP address is bigger than 2^128' % dq)
             if ip <= 0xffffffff:
                 self.v = 4
@@ -476,8 +487,8 @@ class IP(object):
                 return IP(long(self), version=4)
             elif self.bin().startswith('0' * 80 + '1' * 16):
                 return IP(long(self) & 0xffffffff, version=4)
-            elif long(self) & 0x20020000000000000000000000000000L:
-                return IP((long(self) - 0x20020000000000000000000000000000L) >> 80, version=4)
+            elif long(self) & SIX_TO_FOUR_MASK:
+                return IP((long(self) - SIX_TO_FOUR_MASK) >> 80, version=4)
             else:
                 return ValueError('%s: IPv6 address is not IPv4 compatible or mapped, '
                                   'nor an 6-to-4 IP' % self.dq)
@@ -518,7 +529,7 @@ class IP(object):
         assert type in ['6-to-4', 'compat', 'mapped'], 'Conversion type not supported'
         if self.v == 4:
             if type == '6-to-4':
-                return IP(0x20020000000000000000000000000000L | long(self) << 80, version=6)
+                return IP(SIX_TO_FOUR_MASK | long(self) << 80, version=6)
             elif type == 'compat':
                 return IP(long(self), version=6)
             elif type == 'mapped':
@@ -583,9 +594,9 @@ class Network(IP):
         4278190080
         '''
         if self.version() == 4:
-            return (0xffffffffL >> (32 - self.mask)) << (32 - self.mask)
+            return (MAX_IPV4 >> (32 - self.mask)) << (32 - self.mask)
         else:
-            return (0xffffffffffffffffffffffffffffffffL >> (128 - self.mask)) << (128 - self.mask)
+            return (MAX_IPV6 >> (128 - self.mask)) << (128 - self.mask)
 
     def network(self):
         '''
@@ -628,10 +639,10 @@ class Network(IP):
         2147483647
         '''
         if self.version() == 4:
-            return self.network_long() | (0xffffffffL - self.netmask_long())
+            return self.network_long() | (MAX_IPV4 - self.netmask_long())
         else:
             return self.network_long() \
-                | (0xffffffffffffffffffffffffffffffffL - self.netmask_long())
+                | (MAX_IPV6 - self.netmask_long())
 
     def host_first(self):
         '''
@@ -784,23 +795,23 @@ if __name__ == '__main__':
 
     for ip, mask, test_ip in tests:
         net = Network(ip, mask)
-        print '==========='
-        print 'ip address:', net
-        print 'to ipv6...:', net.to_ipv6()
-        print 'ip version:', net.version()
-        print 'ip info...:', net.info()
-        print 'subnet....:', net.subnet()
-        print 'num ip\'s..:', net.size()
-        print 'integer...:', long(net)
-        print 'hex.......:', net.hex()
-        print 'netmask...:', net.netmask()
+        six.print_('===========')
+        six.print_('ip address:', net)
+        six.print_('to ipv6...:', net.to_ipv6())
+        six.print_('ip version:', net.version())
+        six.print_('ip info...:', net.info())
+        six.print_('subnet....:', net.subnet())
+        six.print_('num ip\'s..:', net.size())
+        six.print_('integer...:', long(net))
+        six.print_('hex.......:', net.hex())
+        six.print_('netmask...:', net.netmask())
         # Not implemented in IPv6
         if net.version() == 4:
-            print 'network...:', net.network()
-            print 'broadcast.:', net.broadcast()
-        print 'first host:', net.host_first()
-        print 'reverse...:', net.host_first().to_reverse()
-        print 'last host.:', net.host_last()
-        print 'reverse...:', net.host_last().to_reverse()
+            six.print_('network...:', net.network())
+            six.print_('broadcast.:', net.broadcast())
+        six.print_('first host:', net.host_first())
+        six.print_('reverse...:', net.host_first().to_reverse())
+        six.print_('last host.:', net.host_last())
+        six.print_('reverse...:', net.host_last().to_reverse())
         for ip in test_ip:
-            print '%s in network: ' % ip, ip in net
+            six.print_('%s in network: ' % ip, ip in net)
