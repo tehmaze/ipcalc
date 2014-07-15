@@ -771,6 +771,45 @@ class Network(IP):
         return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
 
 
+class NetworkList(object):
+    '''
+    Manages a list of Network objects, with associated logical operations
+
+    :param networks: list of Network objects
+
+    >>> private_networks = NetworkList(Network('10.42.0.0/24'), Network('192.168.17.0/24'))
+
+    >>> "10.42.0.14" in private_networks
+    True
+
+    >>> "8.8.8.8" in private_networks
+    False
+
+    >>> print private_networks.find_network("8.8.8.8")
+    None
+
+    >>> print private_networks.find_network("10.42.0.1")
+    10.42.0.0
+
+    '''
+
+    def __init__(self, *networks):
+        self.networks = networks
+
+    def find_network(self, ip):
+        for net in self.networks:
+            if ip in net:
+                return net
+
+    def __iter__(self):
+        return iter(self.networks)
+
+    def __contains__(self, ip):
+        if type(ip) == str:
+            return self.find_network(ip) <> None
+        else:
+            raise ValueError("NetworkList must be tested against IP in string format")
+
 if __name__ == '__main__':
     tests = [
         ('192.168.114.42', 23, ['192.168.0.1', '192.168.114.128', '10.0.0.1']),
