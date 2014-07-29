@@ -33,7 +33,7 @@ Thanks to all who have contributed:
 https://github.com/tehmaze/ipcalc/graphs/contributors
 '''
 
-__version__ = '1.1.2'
+__version__ = '1.1.3'
 
 
 import re
@@ -84,51 +84,42 @@ class IP(object):
 
     # IP range specific information, see IANA allocations.
     _range = {
+        # http://www.iana.org/assignments/iana-ipv4-special-registry/iana-ipv4-special-registry.xhtml
         4: {
-            '01':                     'CLASS A',
-            '10':                     'CLASS B',
-            '110':                    'CLASS C',
-            '1110':                   'CLASS D MULTICAST',
-            '11100000':               'CLASS D LINKLOCAL',
-            '1111':                   'CLASS E',
-            '00001010':               'PRIVATE RFC1918',    # 10/8
-            '101011000001':           'PRIVATE RFC1918',    # 172.16/12
-            '1100000010101000':       'PRIVATE RFC1918',    # 192.168/16
+            '00000000':                 'THIS HOST',            # 0/8
+            '00001010':                 'PRIVATE',              # 10/8
+            '0110010001':               'SHARED ADDRESS SPACE', # 100.64/10
+            '01111111':                 'LOOPBACK',             # 127/8
+            '101011000001':             'PRIVATE',              # 172.16/12
+            '110000000000000000000000': 'IETF PROTOCOL',        # 192/24
+            '110000000000000000000010': 'TEST-NET-1',           # 192.0.2/24
+            '110000000101100001100011': '6TO4-RELAY ANYCAST',   # 192.88.99/24
+            '1100000010101000':         'PRIVATE',              # 192.168/16
+            '110001100001001':          'BENCHMARKING',         # 198.18/15
+            '110001100011001':          'TEST-NET-2',           # 198.51.100/24
+            '110010110000000':          'TEST-NET-3',           # 203.0.113/24
+            '1111':                     'RESERVED',             # 240/4
+
         },
+        # http://www.iana.org/assignments/iana-ipv6-special-registry/iana-ipv6-special-registry.xhtml
         6: {
-            '00000000':               'RESERVED',           # ::/8
-            '00000001':               'UNASSIGNED',         # 100::/8
-            '0000001':                'NSAP',               # 200::/7
-            '0000010':                'IPX',                # 400::/7
-            '0000011':                'UNASSIGNED',         # 600::/7
-            '00001':                  'UNASSIGNED',         # 800::/5
-            '0001':                   'UNASSIGNED',         # 1000::/4
-            '0010000000000000':       'RESERVED',           # 2000::/16 Reserved
-            '0010000000000001':       'ASSIGNABLE',         # 2001::/16 Sub-TLA Assignments [RFC2450]
-            '00100000000000010000000': 'ASSIGNABLE IANA',   # 2001:0000::/29 - 2001:01F8::/29 IANA
-            '00100000000000010000001': 'ASSIGNABLE APNIC',  # 2001:0200::/29 - 2001:03F8::/29 APNIC
-            '00100000000000010000010': 'ASSIGNABLE ARIN',   # 2001:0400::/29 - 2001:05F8::/29 ARIN
-            '00100000000000010000011': 'ASSIGNABLE RIPE',   # 2001:0600::/29 - 2001:07F8::/29 RIPE NCC
-            '0010000000000010':       '6TO4',               # 2002::/16 "6to4" [RFC3056]
-            '0011111111111110':       '6BONE TEST',         # 3ffe::/16 6bone Testing [RFC2471]
-            '0011111111111111':       'RESERVED',           # 3fff::/16 Reserved
-            '010':                    'GLOBAL-UNICAST',     # 4000::/3
-            '011':                    'UNASSIGNED',         # 6000::/3
-            '100':                    'GEO-UNICAST',        # 8000::/3
-            '101':                    'UNASSIGNED',         # a000::/3
-            '110':                    'UNASSIGNED',         # c000::/3
-            '1110':                   'UNASSIGNED',         # e000::/4
-            '11110':                  'UNASSIGNED',         # f000::/5
-            '111110':                 'UNASSIGNED',         # f800::/6
-            '1111110':                'UNASSIGNED',         # fc00::/7
-            '111111100':              'UNASSIGNED',         # fe00::/9
-            '1111111010':             'LINKLOCAL',          # fe80::/10
-            '1111111011':             'SITELOCAL',          # fec0::/10
-            '11111111':               'MULTICAST',          # ff00::/8
-            '0' * 96:                 'IPV4COMP',           # ::/96
-            '0' * 80 + '1' * 16:      'IPV4MAP',            # ::ffff:0:0/96
-            '0' * 128:                'UNSPECIFIED',        # ::/128
-            '0' * 127 + '1':          'LOOPBACK'            # ::1/128
+            '0' * 128:                          'UNSPECIFIED',  # ::/128
+            '0' * 127 + '1':                    'LOOPBACK',     # ::1/128
+            '0' * 96:                           'IPV4COMP',     # ::/96
+            '0' * 80 + '1' * 16:                'IPV4MAP',      # ::ffff:0:0/96
+                                                                # 64:ff9b::/96
+            '00000000011001001111111110011011' + 64 * '0': 'IPV4-IPV6',
+            '00000001' + 56 * '0':              'DISCARD-ONLY', # 100::/64
+            '0010000000000001' +  7 * '0':      'IETF PROTOCOL',# 2001::/23
+            '0010000000000001' + 16 * '0':      'TEREDO',       # 2001::/32
+                                                                # 2001:2::/48
+            '00100000000000010000000000000010000000000000000': 'BENCHMARKING',
+            '00100000000000010000110110111000': 'DOCUMENTATION',# 2001:db8::/32
+            '0010000000000001000000000001':     'DEPRECATED',   # 2001:10::/28
+            '0010000000000001000000000010':     'ORCHIDv2',     # 2001:20::/28
+            '0010000000000010':                 '6TO4',         # 2002::/16
+            '11111100000000000':                'UNIQUE-LOCAL', # fc00::/7
+            '1111111010':                       'LINK-LOCAL',   # fe80::/10
         }
     }
 
