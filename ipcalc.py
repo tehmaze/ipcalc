@@ -575,14 +575,14 @@ class Network(IP):
         >>> print(localnet.netmask())
         255.0.0.0
         """
-        return IP(self.netmask_long_func(), version=self.version())
+        return IP(self.netmask_long(), version=self.version())
 
-    def netmask_long_func(self):
+    def netmask_long(self):
         """
         Network netmask derived from subnet size, as long.
 
         >>> localnet = Network('127.0.0.1/8')
-        >>> print(localnet.netmask_long_func())
+        >>> print(localnet.netmask_long())
         4278190080
         """
         if self.version() == 4:
@@ -598,17 +598,17 @@ class Network(IP):
         >>> print(localnet.network())
         127.0.0.0
         """
-        return IP(self.network_long_func(), version=self.version())
+        return IP(self.network_long(), version=self.version())
 
-    def network_long_func(self):
+    def network_long(self):
         """
         Network address, as long.
 
         >>> localnet = Network('127.128.99.3/8')
-        >>> print(localnet.network_long_func())
+        >>> print(localnet.network_long())
         2130706432
         """
-        return self.ip & self.netmask_long_func()
+        return self.ip & self.netmask_long()
 
     def broadcast(self):
         """
@@ -620,21 +620,21 @@ class Network(IP):
         """
         # XXX: IPv6 doesn't have a broadcast address, but it's used for other
         #      calculations such as <Network.host_last>
-        return IP(self.broadcast_long_func(), version=self.version())
+        return IP(self.broadcast_long(), version=self.version())
 
-    def broadcast_long_func(self):
+    def broadcast_long(self):
         """
         Broadcast address, as long.
 
         >>> localnet = Network('127.0.0.1/8')
-        >>> print(localnet.broadcast_long_func())
+        >>> print(localnet.broadcast_long())
         2147483647
         """
         if self.version() == 4:
-            return self.network_long_func() | (MAX_IPV4 - self.netmask_long_func())
+            return self.network_long() | (MAX_IPV4 - self.netmask_long())
         else:
-            return self.network_long_func() \
-                | (MAX_IPV6 - self.netmask_long_func())
+            return self.network_long() \
+                | (MAX_IPV6 - self.netmask_long())
 
     def host_first(self):
         """
@@ -644,7 +644,7 @@ class Network(IP):
                 (self.version() == 6 and self.mask > 126):
             return self
         else:
-            return IP(self.network_long_func() + 1, version=self.version())
+            return IP(self.network_long() + 1, version=self.version())
 
     def host_last(self):
         """
@@ -657,7 +657,7 @@ class Network(IP):
                 (self.version() == 6 and self.mask == 127):
             return IP(long_func(self) + 1, version=self.version())
         else:
-            return IP(self.broadcast_long_func() - 1, version=self.version())
+            return IP(self.broadcast_long() - 1, version=self.version())
 
     def in_network(self, other):
         """
@@ -669,15 +669,15 @@ class Network(IP):
                       DeprecationWarning,
                       stacklevel=2)
         other = Network(other)
-        return self.network_long_func() <= other.network_long_func() <= self.broadcast_long_func()
+        return self.network_long() <= other.network_long() <= self.broadcast_long()
 
     def check_collision(self, other):
         """
         Check another network against the given network and checks for IP collisions.
         """
         other = Network(other)
-        return self.network_long_func() <= other.network_long_func() <= self.broadcast_long_func() or \
-            other.network_long_func() <= self.network_long_func() <= other.broadcast_long_func()
+        return self.network_long() <= other.network_long() <= self.broadcast_long() or \
+            other.network_long() <= self.network_long() <= other.broadcast_long()
 
     def __str__(self):
         """
@@ -784,7 +784,7 @@ if __name__ == '__main__':
         ('2001:dead:beef:1:c01d:c01a::', 'ffff:ffff:ffff::', ['2001:dead:beef:babe::']),
         ('10.10.0.0/255.255.240.0', None, ['10.10.0.20', '10.10.250.0']),
     ]
-
+#
     for address, netmask, test_ips in tests:
         net = Network(address, netmask)
         print('===========')
