@@ -218,7 +218,7 @@ class IP(object):
 
         >>> ip = IP("127.0.0.1")
         >>> print ip.info()
-        CLASS A
+        LOOPBACK
         '''
         b = self.bin()
         self.v == 4 and 32 or 128
