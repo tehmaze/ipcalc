@@ -230,8 +230,8 @@ class IP(object):
         Show IANA allocation information for the current IP address.
 
         >>> ip = IP("127.0.0.1")
-        >>> print(ip.info())
-        CLASS A
+        >>> print ip.info()
+        LOOPBACK
         """
         b = self.bin()
         for i in range(len(b), 0, -1):
