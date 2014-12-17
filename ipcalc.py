@@ -165,7 +165,7 @@ class IP(object):
             assert self.v != 0, 'Could not parse input'
         # Netmask defaults to one ip
         if self.mask is None:
-            self.mask = self.v == 4 and 32 or 128
+            self.mask = {4: 32, 6: 128}[self.v]
         # Netmask is numeric CIDR subnet
         elif isinstance(self.mask, integer_types) or self.mask.isdigit():
             self.mask = int(self.mask)
@@ -758,7 +758,7 @@ class Network(IP):
         >>> print(net.size())
         256
         """
-        return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
+        return 2 ** ({4: 32, 6: 128}[self.version()] - self.mask)
 
 
 if __name__ == '__main__':
