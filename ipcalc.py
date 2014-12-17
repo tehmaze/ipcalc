@@ -2,9 +2,8 @@
 # pep8-ignore: E501, E241
 
 """
-====================================
- :mod:`ipcalc` IP subnet calculator
-====================================
+IP subnet calculator.
+
 .. moduleauthor:: Wijnand Modderman-Lenstra <maze@pyth0n.org>
 .. note:: BSD License
 
@@ -53,9 +52,7 @@ if PY_MAJOR == 2:
     string_types = basestring
     if PY_MINOR < 6:
         def bin(x):
-            """
-            Stringifies an int or long in base 2.
-            """
+            """Stringify an int or long in base 2."""
             if x < 0:
                 return '-%s' % bin(-x)
             out = []
@@ -73,8 +70,9 @@ else:
 
 
 class IP(object):
+
     """
-    Represents a single IP address.
+    Represent a single IP address.
 
     :param ip: the ip address
     :type ip: :class:`IP` or str or long or int
@@ -137,6 +135,7 @@ class IP(object):
     }
 
     def __init__(self, ip, mask=None, version=0):
+        """Initialize a new IPv4 or IPv6 address."""
         self.mask = mask
         self.v = 0
         # Parse input
@@ -190,8 +189,7 @@ class IP(object):
                 raise ValueError('IPv4 subnet size must be between 0 and 32')
 
     def bin(self):
-        """
-        Full-length binary representation of the IP address.
+        """Full-length binary representation of the IP address.
 
         >>> ip = IP("127.0.0.1")
         >>> print(ip.bin())
@@ -200,8 +198,7 @@ class IP(object):
         return bin(self.ip).split('b')[1].rjust(self.mask, '0')
 
     def hex(self):
-        """
-        Full-length hexadecimal representation of the IP address.
+        """Full-length hexadecimal representation of the IP address.
 
         >>> ip = IP("127.0.0.1")
         >>> print(ip.hex())
@@ -213,11 +210,11 @@ class IP(object):
             return '%032x' % self.ip
 
     def subnet(self):
+        """CIDR subnet size."""
         return self.mask
 
     def version(self):
-        """
-        IP version.
+        """IP version.
 
         >>> ip = IP("127.0.0.1")
         >>> print(ip.version())
@@ -226,8 +223,7 @@ class IP(object):
         return self.v
 
     def info(self):
-        """
-        Show IANA allocation information for the current IP address.
+        """Show IANA allocation information for the current IP address.
 
         >>> ip = IP("127.0.0.1")
         >>> print ip.info()
@@ -240,9 +236,7 @@ class IP(object):
         return 'UNKNOWN'
 
     def _dqtoi(self, dq):
-        """
-        Convert dotquad or hextet to long.
-        """
+        """Convert dotquad or hextet to long."""
         # hex notation
         if dq.startswith('0x'):
             ip = long_func(dq[2:], 16)
@@ -267,7 +261,7 @@ class IP(object):
                 raise ValueError('%s: IPv6 address with more than 8 hexlets' % dq)
             elif len(hx) < 8:
                 # No :: in address
-                if not '' in hx:
+                if '' not in hx:
                     raise ValueError('%s: IPv6 address invalid: '
                                      'compressed format malformed' % dq)
                 elif not (dq.startswith('::') or dq.endswith('::')) and len([x for x in hx if x == '']) > 1:
@@ -317,9 +311,7 @@ class IP(object):
         raise ValueError('Invalid address input')
 
     def _itodq(self, n):
-        """
-        Convert long to dotquad or hextet.
-        """
+        """Convert long to dotquad or hextet."""
         if self.v == 4:
             return '.'.join(map(str, [
                 (n >> 24) & 0xff,
@@ -332,8 +324,7 @@ class IP(object):
             return ':'.join(n[4 * x:4 * x + 4] for x in range(0, 8))
 
     def __str__(self):
-        """
-        Return dotquad representation of the IP.
+        """Return dotquad representation of the IP.
 
         >>> ip = IP("::1")
         >>> print(str(ip))
@@ -342,8 +333,7 @@ class IP(object):
         return self.dq
 
     def __repr__(self):
-        """
-        Return canonical representation of the IP.
+        """Return canonical representation of the IP.
 
         >>> repr(IP("::1"))
         "IP('::1')"
@@ -363,32 +353,41 @@ class IP(object):
         return fmt.format(*args)
 
     def __hash__(self):
+        """Hash for collection operations and py:`hash()`."""
         return hash(self.to_tuple())
 
     hash = __hash__
 
     def __int__(self):
+        """Convert to int."""
         return int(self.ip)
 
     def __long__(self):
+        """Convert to long."""
         return self.ip
 
     def __lt__(self, other):
+        """Compare less than."""
         return long_func(self) < long_func(IP(other))
 
     def __le__(self, other):
+        """Compare less than or equal to."""
         return long_func(self) <= long_func(IP(other))
 
     def __ge__(self, other):
+        """Compare greater than or equal to."""
         return long_func(self) >= long_func(IP(other))
 
     def __gt__(self, other):
+        """Compare greater than."""
         return long_func(self) > long_func(IP(other))
 
     def __eq__(self, other):
+        """Compare equal."""
         return long_func(self) == long_func(IP(other))
 
     def size(self):
+        """Return network size."""
         return 1
 
     def clone(self):
@@ -465,8 +464,10 @@ class IP(object):
 
     def to_ipv4(self):
         """
-        Convert (an IPv6) IP address to an IPv4 address, if possible. Only works
-        for IPv4-compat (::/96), IPv4-mapped (::ffff/96), and 6-to-4 (2002::/16) addresses.
+        Convert (an IPv6) IP address to an IPv4 address, if possible.
+
+        Only works for IPv4-compat (::/96), IPv4-mapped (::ffff/96), and 6-to-4
+        (2002::/16) addresses.
 
         >>> ip = IP('2002:c000:022a::')
         >>> print(ip.to_ipv4())
@@ -487,6 +488,7 @@ class IP(object):
 
     @classmethod
     def from_bin(cls, value):
+        """Initialize a new network from binary notation."""
         value = value.lstrip('b')
         if len(value) == 32:
             return cls(int(value, 2))
@@ -497,6 +499,7 @@ class IP(object):
 
     @classmethod
     def from_hex(cls, value):
+        """Initialize a new network from hexadecimal notation."""
         if len(value) == 8:
             return cls(int(value, 16))
         elif len(value) == 32:
@@ -530,9 +533,9 @@ class IP(object):
             return self
 
     def to_reverse(self):
-        """
-        Convert the IP address to a PTR record in .in-addr.arpa for IPv4 and
-        .ip6.arpa for IPv6 addresses.
+        """Convert the IP address to a PTR record.
+
+        Using the .in-addr.arpa zone for IPv4 and .ip6.arpa for IPv6 addresses.
 
         >>> ip = IP('192.0.2.42')
         >>> print(ip.to_reverse())
@@ -546,13 +549,12 @@ class IP(object):
             return '.'.join(list(self.hex())[::-1] + ['ip6', 'arpa'])
 
     def to_tuple(self):
-        """
-        Used for comparisons.
-        """
+        """Used for comparisons."""
         return (self.dq, self.mask)
 
 
 class Network(IP):
+
     """
     Network slice calculations.
 
@@ -637,9 +639,7 @@ class Network(IP):
                 | (MAX_IPV6 - self.netmask_long())
 
     def host_first(self):
-        """
-        First available host in this subnet.
-        """
+        """First available host in this subnet."""
         if (self.version() == 4 and self.mask > 30) or \
                 (self.version() == 6 and self.mask > 126):
             return self
@@ -647,9 +647,7 @@ class Network(IP):
             return IP(self.network_long() + 1, version=self.version())
 
     def host_last(self):
-        """
-        Last available host in this subnet.
-        """
+        """Last available host in this subnet."""
         if (self.version() == 4 and self.mask == 32) or \
                 (self.version() == 6 and self.mask == 128):
             return self
@@ -659,22 +657,8 @@ class Network(IP):
         else:
             return IP(self.broadcast_long() - 1, version=self.version())
 
-    def in_network(self, other):
-        """
-        Check if the given IP address is within this network.
-        This function is deprecated, use check_collision instead.
-        """
-        warnings.warn('%s.in_network is deprecated, use check_collision in '
-                      'stead' % (self.__class__.__name__,),
-                      DeprecationWarning,
-                      stacklevel=2)
-        other = Network(other)
-        return self.network_long() <= other.network_long() <= self.broadcast_long()
-
     def check_collision(self, other):
-        """
-        Check another network against the given network and checks for IP collisions.
-        """
+        """Check another network against the given network."""
         other = Network(other)
         return self.network_long() <= other.network_long() <= self.broadcast_long() or \
             other.network_long() <= self.network_long() <= other.broadcast_long()
@@ -701,21 +685,27 @@ class Network(IP):
         return self.check_collision(ip)
 
     def __lt__(self, other):
+        """Compare less than."""
         return self.size() < IP(other).size()
 
     def __le__(self, other):
+        """Compare less than or equal to."""
         return self.size() <= IP(other).size()
 
     def __gt__(self, other):
+        """Compare greater than."""
         return self.size() > IP(other).size()
 
     def __ge__(self, other):
+        """Compare greater than or equal to."""
         return self.size() >= IP(other).size()
 
     def __eq__(self, other):
+        """Compare equal."""
         return self.size() == IP(other).size()
 
     def __getitem__(self, key):
+        """Get the nth item or slice of the network."""
         if isinstance(key, slice):
             # Work-around IPv6 subnets being huge. Slice indices don't like
             # long int.
@@ -731,9 +721,7 @@ class Network(IP):
             return IP(long_func(self) + key)
 
     def __iter__(self):
-        """
-        Generate a range of usable host IP addresses within the network, as IP
-        objects.
+        """Generate a range of usable host IP addresses within the network.
 
         >>> for ip in Network('192.168.114.0/30'):
         ...     print(str(ip))
@@ -741,7 +729,6 @@ class Network(IP):
         192.168.114.1
         192.168.114.2
         """
-
         curr = long_func(self.host_first())
         stop = long_func(self.host_last())
         while curr <= stop:
