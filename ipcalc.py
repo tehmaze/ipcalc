@@ -667,6 +667,43 @@ class Network(IP):
         return self.network_long() <= other.network_long() <= self.broadcast_long() or \
             other.network_long() <= self.network_long() <= other.broadcast_long()
 
+    def split(self, new_subnet):
+        '''
+        Split Network into multiple networks of new_subnet size.
+
+        Implementation roughly translated from Rubys NetAddr::CIDR#subnet method
+        '''
+        if self.subnet() >= new_subnet:
+            return []
+
+        # Get number of subnets possible with the requested subnet_bits
+        num_avail = 2**(new_subnet - self.subnet())
+
+        # get the number of bits in the next supernet and
+        # make sure num_subnets is a power of 2
+        bits_needed = 1
+        num_subnets = num_avail
+
+        while not (2**bits_needed >= num_subnets):
+            bits_needed += 1
+        num_subnets = 2**bits_needed
+        next_supernet_bits = new_subnet - bits_needed
+
+        # make sure subnet is larger than new_subnet mask
+        if new_subnet < self.subnet():
+            raise Exception("Requested subnet %s is too large for current \
+            CIDR space." % new_subnet)
+
+        # list all 'subnet_bits' sized subnets of this cidr block
+        bitstep = Network("%s/%s" % (self.network(), new_subnet)).size()
+        hosts = [self.network()] + [i for i in self] + [self.broadcast()]
+
+        new_networks = []
+        for ip in hosts[::bitstep]:
+            new_networks.append(Network(str(ip), mask=new_subnet))
+
+        return new_networks
+
     def __str__(self):
         '''
         Return CIDR representation of the network.
@@ -795,3 +832,10 @@ if __name__ == '__main__':
         print 'reverse...:', net.host_last().to_reverse()
         for ip in test_ip:
             print '%s in network: ' % ip, ip in net
+        print "splits into following /24s:"
+        try:
+            for subnet in net.split(24):
+                print subnet
+        except ValueError:
+            pass
+
