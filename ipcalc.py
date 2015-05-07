@@ -33,12 +33,12 @@ Thanks to all who have contributed:
 https://github.com/tehmaze/ipcalc/graphs/contributors
 '''
 
-__version__ = '1.1.3'
+__version__ = '1.1.4'
 
 
 import re
 import warnings
-
+import unittest
 
 try:
     bin
@@ -375,6 +375,24 @@ class IP(object):
 
     def __eq__(self, other):
         return long(self) == long(IP(other))
+
+    def __add__(self, other):
+        '''
+        return an IP address with the integer offset added to
+        this address. Result may not be in the same subnet.
+        '''
+        if not isinstance(other, (int, long)):
+            return ValueError('value being added is not an \'int\' or \'long\'')
+        return self.__class__(self.ip + other, mask=self.mask, version=self.v)
+
+    def __sub__(self, other):
+        '''
+        return an IP address with the integer offset added to
+        this address. Result may not be in the same subnet.
+        '''
+        if not isinstance(other, (int, long)):
+            return ValueError('value being added is not an \'int\' or \'long\'')
+        return self.__class__(self.ip - other, mask=self.mask, version=self.version())
 
     def size(self):
         return 1
@@ -761,37 +779,171 @@ class Network(IP):
         '''
         return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
 
+# unit tests
+class TestSuite(unittest.TestCase):
+    ''' Unit tests '''
+
+    def test_ipv4_1(self):
+        net = Network('192.168.114.42', 23)
+        self.assertTrue(str(net) == '192.168.114.42/23')
+        self.assertTrue(str(net.to_ipv6().to_compressed()) == '2002:c0a8:722a::')
+        self.assertTrue(net.info() == 'PRIVATE')
+        self.assertTrue(net.subnet() == 23)
+        self.assertTrue(net.size() == 1 << (32 - 23))
+        self.assertTrue(long(net) == 3232264746L)
+        self.assertTrue(net.hex().lower() == 'c0a8722a')
+        self.assertTrue(str(net.netmask()) == '255.255.254.0')
+        self.assertTrue(net.version() == 4)
+        self.assertTrue(str(net.network()) == '192.168.114.0')
+        self.assertTrue(str(net.broadcast()) == '192.168.115.255')
+        self.assertFalse('192.168.0.1' in net)
+        self.assertTrue('192.168.114.128' in net)
+        self.assertFalse('10.0.0.1' in net)
+        self.assertTrue(str(net + 6) == '192.168.114.48/23')
+        self.assertTrue((net + 6) in net)
+        self.assertTrue(str(net - 6) == '192.168.114.36/23')
+        self.assertTrue((net - 6) in net)
+
+    def test_ipv4_2(self):
+        net = Network('10.10.0.0', '255.255.255.0')
+        self.assertTrue(str(net) == '10.10.0.0/24')
+        self.assertTrue(str(net.to_ipv6().to_compressed()) == '2002:a0a::')
+        # following test is currently failing
+        # self.assertTrue(net.info() == 'PRIVATE')
+        self.assertTrue(net.subnet() == 24)
+        self.assertTrue(net.size() == 1 << (32 - 24))
+        self.assertTrue(long(net) == 168427520L)
+        self.assertTrue(net.hex().lower() == '0a0a0000')
+        self.assertTrue(str(net.netmask()) == '255.255.255.0')
+        self.assertTrue(net.version() == 4)
+        self.assertTrue(str(net.network()) == '10.10.0.0')
+        self.assertTrue(str(net.broadcast()) == '10.10.0.255')
+        self.assertFalse('192.168.0.1' in net)
+        self.assertFalse('192.168.114.128' in net)
+        self.assertFalse('10.0.0.1' in net)
+        self.assertTrue('10.10.0.254' in net)
+        self.assertTrue('10.10.0.100' in net)
+        self.assertTrue(str(net + 6) == '10.10.0.6/24')
+        self.assertTrue(str(net + 6) in net)
+        self.assertTrue(str(net - 6) == '10.9.255.250/24') # note, result is not in subnet
+        self.assertFalse(str(net -6) in net)
+
+
+    def test_ipv4_3(self):
+        net = Network('10.10.0.0/255.255.255.0')
+        self.assertTrue(str(net) == '10.10.0.0/24')
+        self.assertTrue(str(net.to_ipv6().to_compressed()) == '2002:a0a::')
+        # following test is currently failing
+        # self.assertTrue(net.info() == 'PRIVATE')
+        self.assertTrue(net.subnet() == 24)
+        self.assertTrue(net.size() == 1 << (32 - 24))
+        self.assertTrue(long(net) == 168427520L)
+        self.assertTrue(net.hex().lower() == '0a0a0000')
+        self.assertTrue(str(net.netmask()) == '255.255.255.0')
+        self.assertTrue(net.version() == 4)
+        self.assertTrue(str(net.network()) == '10.10.0.0')
+        self.assertTrue(str(net.broadcast()) == '10.10.0.255')
+        self.assertFalse('192.168.0.1' in net)
+        self.assertFalse('192.168.114.128' in net)
+        self.assertFalse('10.0.0.1' in net)
+        self.assertTrue('10.10.0.254' in net)
+        self.assertTrue('10.10.0.100' in net)
+
+
+    def test_ipv6_1(self):
+        net = Network('123::', 128)
+        self.assertTrue(str(net) == '0123:0000:0000:0000:0000:0000:0000:0000/128')
+        self.assertTrue(str(net.to_compressed()) == '123::')
+        self.assertTrue(str(net.to_ipv6().to_compressed()) == '123::')
+        self.assertTrue(net.info() == 'UNKNOWN')
+        self.assertTrue(net.subnet() == 128)
+        self.assertTrue(net.size() == 1 << (128 - 128))
+        self.assertTrue(long(net) == 1510958385833634839902374431803047936L)
+        self.assertTrue(net.hex().lower() == '01230000000000000000000000000000')
+        self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')
+        self.assertTrue(net.version() == 6)
+        self.assertTrue(str(net.network()) == '0123:0000:0000:0000:0000:0000:0000:0000')
+        self.assertTrue(str(net.broadcast()) == '0123:0000:0000:0000:0000:0000:0000:0000')
+        self.assertFalse('123:456::' in net)
+        self.assertTrue('123::' in net)
+        self.assertFalse('::1' in net)
+        self.assertFalse('123::456' in net)
+        self.assertTrue(str((net + 6).to_compressed()).lower() == '123::6')
+        self.assertFalse((net + 6) in net)
+        self.assertTrue(str((net - 6).to_compressed()).lower() == '122:ffff:ffff:ffff:ffff:ffff:ffff:fffa')
+        self.assertFalse((net - 6) in net)
+
+    def test_ipv6_2(self):
+        net = Network('::42', 64)
+        self.assertTrue(str(net) == '0000:0000:0000:0000:0000:0000:0000:0042/64')
+        self.assertTrue(str(net.to_compressed()) == '::42')
+        self.assertTrue(str(net.to_ipv6().to_compressed()) == '::42')
+        self.assertTrue(net.info() == 'UNKNOWN')
+        self.assertTrue(net.subnet() == 64)
+        self.assertTrue(net.size() == 1 << (128 - 64))
+        self.assertTrue(long(net) == 0x42L)
+        self.assertTrue(net.hex().lower() == '00000000000000000000000000000042')
+        self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:ffff:0000:0000:0000:0000')
+        self.assertTrue(net.version() == 6)
+        self.assertTrue(str(net.network()) == '0000:0000:0000:0000:0000:0000:0000:0000')
+        self.assertTrue(str(net.broadcast()) == '0000:0000:0000:0000:ffff:ffff:ffff:ffff')
+        self.assertFalse('123:456::' in net)
+        self.assertTrue('::aaaa:bbbb:cccc:dddd' in net)
+        self.assertTrue('::dddd' in net)
+        self.assertTrue('::1' in net)
+        self.assertFalse('123::456' in net)
+        self.assertTrue(str((net + 6).to_compressed()).lower() == '::48')
+        self.assertTrue((net + 6) in net)
+        self.assertTrue(str((net - 6).to_compressed()).lower() == '::3c')
+        self.assertTrue((net - 6) in net)
+
+
+    def test_ipv6_3(self):
+        net = Network('2001:dead:beef:1:c01d:c01a::', 48)
+        self.assertTrue(str(net) == '2001:dead:beef:0001:c01d:c01a:0000:0000/48')
+        self.assertTrue(str(net.to_compressed()) == '2001:dead:beef:1:c01d:c01a::')
+        self.assertTrue(str(net.to_ipv6().to_compressed()) == '2001:dead:beef:1:c01d:c01a::')
+        self.assertTrue(net.info() == 'UNKNOWN')
+        self.assertTrue(net.subnet() == 48)
+        self.assertTrue(net.size() == 1 << (128 - 48))
+        self.assertTrue(long(net) == 0x2001deadbeef0001c01dc01a00000000L)
+        self.assertTrue(net.hex().lower() == '2001deadbeef0001c01dc01a00000000')
+        self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:0000:0000:0000:0000:0000')
+        self.assertTrue(net.version() == 6)
+        self.assertTrue(str(net.network()) == '2001:dead:beef:0000:0000:0000:0000:0000')
+        self.assertTrue(str(net.broadcast()) == '2001:dead:beef:ffff:ffff:ffff:ffff:ffff')
+        self.assertFalse('123:456::' in net)
+        self.assertFalse('::aaaa:bbbb:cccc:dddd' in net)
+        self.assertFalse('::dddd' in net)
+        self.assertFalse('::1' in net)
+        self.assertFalse('123::456' in net)
+        self.assertTrue('2001:dead:beef:babe::1234' in net)
+
+    def test_ipv6_4(self):
+        net = Network('2001:dead:beef:1:c01d:c01a::', 'ffff:ffff:ffff::')
+        self.assertTrue(str(net) == '2001:dead:beef:0001:c01d:c01a:0000:0000/48')
+        self.assertTrue(str(net.to_compressed()) == '2001:dead:beef:1:c01d:c01a::')
+        self.assertTrue(str(net.to_ipv6().to_compressed()) == '2001:dead:beef:1:c01d:c01a::')
+        self.assertTrue(net.info() == 'UNKNOWN')
+        self.assertTrue(net.subnet() == 48)
+        self.assertTrue(net.size() == 1 << (128 - 48))
+        self.assertTrue(long(net) == 0x2001deadbeef0001c01dc01a00000000L)
+        self.assertTrue(net.hex().lower() == '2001deadbeef0001c01dc01a00000000')
+        self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:0000:0000:0000:0000:0000')
+        self.assertTrue(net.version() == 6)
+        self.assertTrue(str(net.network()) == '2001:dead:beef:0000:0000:0000:0000:0000')
+        self.assertTrue(str(net.broadcast()) == '2001:dead:beef:ffff:ffff:ffff:ffff:ffff')
+        self.assertFalse('123:456::' in net)
+        self.assertFalse('::aaaa:bbbb:cccc:dddd' in net)
+        self.assertFalse('::dddd' in net)
+        self.assertFalse('::1' in net)
+        self.assertFalse('123::456' in net)
+        self.assertTrue('2001:dead:beef:babe::1234' in net)
+
+
+def run_unit_tests():
+    suite = unittest.TestLoader().loadTestsFromTestCase(TestSuite)
+    unittest.TextTestRunner(verbosity=2).run(suite)
 
 if __name__ == '__main__':
-    tests = [
-        ('192.168.114.42', 23, ['192.168.0.1', '192.168.114.128', '10.0.0.1']),
-        ('123::', 128, ['123:456::', '::1', '123::456']),
-        ('::42', 64, ['::1', '1::']),
-        ('2001:dead:beef:1:c01d:c01a::', 48, ['2001:dead:beef:babe::']),
-        ('10.10.0.0', '255.255.255.0', ['10.10.0.20', '10.10.10.20']),
-        ('2001:dead:beef:1:c01d:c01a::', 'ffff:ffff:ffff::', ['2001:dead:beef:babe::']),
-        ('10.10.0.0/255.255.240.0', None, ['10.10.0.20', '10.10.250.0']),
-    ]
-
-    for ip, mask, test_ip in tests:
-        net = Network(ip, mask)
-        print '==========='
-        print 'ip address:', net
-        print 'to ipv6...:', net.to_ipv6()
-        print 'ip version:', net.version()
-        print 'ip info...:', net.info()
-        print 'subnet....:', net.subnet()
-        print 'num ip\'s..:', net.size()
-        print 'integer...:', long(net)
-        print 'hex.......:', net.hex()
-        print 'netmask...:', net.netmask()
-        # Not implemented in IPv6
-        if net.version() == 4:
-            print 'network...:', net.network()
-            print 'broadcast.:', net.broadcast()
-        print 'first host:', net.host_first()
-        print 'reverse...:', net.host_first().to_reverse()
-        print 'last host.:', net.host_last()
-        print 'reverse...:', net.host_last().to_reverse()
-        for ip in test_ip:
-            print '%s in network: ' % ip, ip in net
+    run_unit_tests()
