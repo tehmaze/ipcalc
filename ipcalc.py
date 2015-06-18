@@ -719,7 +719,7 @@ class Network(IP):
             slice_step = key.step or 1
             arr = list()
             while x < slice_stop:
-                arr.append(IP(int(self) + x), mask=self.subnet())
+                arr.append(IP(int(self) + x, mask=self.subnet()))
                 x += slice_step
             return tuple(arr)
         else:
