@@ -540,6 +540,11 @@ class IP(object):
         return (self.dq, self.mask)
 
 
+    def guess_network(self):
+        netmask = 0x100000000 - 2**(32-self.mask)
+        return Network(netmask & self.ip, mask=self.mask)
+
+
 class Network(IP):
     '''
     Network slice calculations.
@@ -689,19 +694,19 @@ class Network(IP):
         return self.check_collision(ip)
 
     def __lt__(self, other):
-        return self.size() < IP(other).size()
+        return self.size() < other.size()
 
     def __le__(self, other):
-        return self.size() <= IP(other).size()
+        return self.size() <= other.size()
 
     def __gt__(self, other):
-        return self.size() > IP(other).size()
+        return self.size() > other.size()
 
     def __ge__(self, other):
-        return self.size() >= IP(other).size()
+        return self.size() >= other.size()
 
     def __eq__(self, other):
-        return self.size() == IP(other).size()
+        return super(Network, self).__eq__(other) and self.size() == other.size()
 
     def __getitem__(self, key):
         if isinstance(key, slice):
@@ -712,11 +717,13 @@ class Network(IP):
             slice_step = key.step or 1
             arr = list()
             while x < slice_stop:
-                arr.append(IP(long(self) + x))
+                arr.append(IP(long(self) + x, mask=self.subnet()))
                 x += slice_step
             return tuple(arr)
         else:
-            return IP(long(self) + key)
+            if key >= self.size():
+                raise IndexError("Index out of range: %d > %d" % (key, self.size()-1))
+            return IP(long(self) + (key + self.size()) % self.size(), mask=self.subnet())
 
     def __iter__(self):
         '''
@@ -760,6 +767,9 @@ class Network(IP):
         256
         '''
         return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
+
+    def __len__(self):
+        return self.size()
 
 
 if __name__ == '__main__':
