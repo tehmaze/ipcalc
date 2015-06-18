@@ -62,6 +62,8 @@ class TestIP(unittest.TestCase):
 
     def test_guesstimation(self):
         self.assertEqual(IP('192.168.0.1', mask=28).guess_network(), Network('192.168.0.0/28'))
+        self.assertEqual(IP('192.168.0.1/24').guess_network(), Network('192.168.0.0/24'))
+        self.assertEqual(IP('192.168.0.1/255.255.255.0', mask=28).guess_network(), Network('192.168.0.0/24'))
         self.assertEqual(IP('192.168.0.56', mask=26).guess_network(), Network('192.168.0.0/26'))
         self.assertEqual(IP('192.168.0.1').guess_network(), Network('192.168.0.1/32'))
 
