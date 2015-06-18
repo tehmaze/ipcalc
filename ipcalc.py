@@ -719,11 +719,11 @@ class Network(IP):
             slice_step = key.step or 1
             arr = list()
             while x < slice_stop:
-                arr.append(IP(int(self) + x))
+                arr.append(IP(int(self) + x), mask=self.subnet())
                 x += slice_step
             return tuple(arr)
         else:
-            return IP(int(self) + key)
+            return IP(int(self) + (key + self.size()) % self.size(), mask=self.subnet())
 
     def __iter__(self):
         """Generate a range of usable host IP addresses within the network.
