@@ -716,7 +716,7 @@ class Network(IP):
                 x += slice_step
             return tuple(arr)
         else:
-            return IP(long(self) + key)
+            return IP(long(self) + (key + self.size()) % self.size())
 
     def __iter__(self):
         '''
