@@ -712,11 +712,11 @@ class Network(IP):
             slice_step = key.step or 1
             arr = list()
             while x < slice_stop:
-                arr.append(IP(long(self) + x))
+                arr.append(IP(long(self) + x), mask=self.subnet())
                 x += slice_step
             return tuple(arr)
         else:
-            return IP(long(self) + (key + self.size()) % self.size())
+            return IP(long(self) + (key + self.size()) % self.size(), mask=self.subnet())
 
     def __iter__(self):
         '''
