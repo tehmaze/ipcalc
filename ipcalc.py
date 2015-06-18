@@ -557,6 +557,10 @@ class IP(object):
         """Used for comparisons."""
         return (self.dq, self.mask)
 
+    def guess_network(self):
+        netmask = 0x100000000 - 2**(32-self.mask)
+        return Network(netmask & self.ip, mask=self.mask)
+
 
 class Network(IP):
 
@@ -723,6 +727,8 @@ class Network(IP):
                 x += slice_step
             return tuple(arr)
         else:
+            if key >= self.size():
+                raise IndexError("Index out of range: %d > %d" % (key, self.size()-1))
             return IP(int(self) + (key + self.size()) % self.size(), mask=self.subnet())
 
     def __iter__(self):
@@ -764,6 +770,9 @@ class Network(IP):
         256
         """
         return 2 ** ({4: 32, 6: 128}[self.version()] - self.mask)
+
+    def __len__(self):
+        return self.size()
 
 
 if __name__ == '__main__':
