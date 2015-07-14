@@ -176,7 +176,8 @@ class IP(object):
         >>> print(ip.bin())
         01111111000000000000000000000001
         """
-        return bin(self.ip).split('b')[1].rjust(self.mask, '0')
+        bits = self.v == 4 and 32 or 128
+        return bin(self.ip).split('b')[1].rjust(bits, '0')
 
     def hex(self):
         """Full-length hexadecimal representation of the IP address.
