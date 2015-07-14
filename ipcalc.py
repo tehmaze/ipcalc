@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 # pep8-ignore: E501, E241
 
+from __future__ import print_function
+
 '''
 ====================================
  :mod:`ipcalc` IP subnet calculator
@@ -38,6 +40,12 @@ __version__ = '1.1.3'
 
 import re
 import warnings
+import six
+
+
+MAX_IPV4 = int('0xffffffff', 16)
+MAX_IPV6 = int('0xffffffffffffffffffffffffffffffff', 16)
+BASE_6TO4 = int('0x20020000000000000000000000000000', 16)
 
 
 try:
@@ -67,10 +75,10 @@ class IP(object):
     :type ip: :class:`IP` or str or long or int
 
     >>> localhost = IP("127.0.0.1")
-    >>> print localhost
+    >>> print(localhost)
     127.0.0.1
     >>> localhost6 = IP("::1")
-    >>> print localhost6
+    >>> print(localhost6)
     0000:0000:0000:0000:0000:0000:0000:0001
     '''
 
@@ -134,9 +142,9 @@ class IP(object):
             self.dq = ip.dq
             self.v = ip.v
             self.mask = ip.mask
-        elif isinstance(ip, (int, long)):
-            self.ip = long(ip)
-            if self.ip <= 0xffffffff:
+        elif isinstance(ip, six.integer_types):
+            self.ip = int(ip)
+            if self.ip <= MAX_IPV4:
                 self.v = version or 4
                 self.dq = self._itodq(ip)
             else:
@@ -155,10 +163,10 @@ class IP(object):
         if self.mask is None:
             self.mask = self.v == 4 and 32 or 128
         # Netmask is numeric CIDR subnet
-        elif isinstance(self.mask, (int, long)) or self.mask.isdigit():
+        elif isinstance(self.mask, six.integer_types) or self.mask.isdigit():
             self.mask = int(self.mask)
         # Netmask is in subnet notation
-        elif isinstance(self.mask, basestring):
+        elif isinstance(self.mask, six.string_types):
             limit = [32, 128][':' in self.mask]
             inverted = ~self._dqtoi(self.mask)
             if inverted == -1:
@@ -184,7 +192,7 @@ class IP(object):
         Full-length binary representation of the IP address.
 
         >>> ip = IP("127.0.0.1")
-        >>> print ip.bin()
+        >>> print(ip.bin())
         01111111000000000000000000000001
         '''
         return bin(self.ip).split('b')[1].rjust(self.mask, '0')
@@ -210,7 +218,7 @@ class IP(object):
         IP version.
 
         >>> ip = IP("127.0.0.1")
-        >>> print ip.version()
+        >>> print(ip.version())
         4
         '''
         return self.v
@@ -220,7 +228,7 @@ class IP(object):
         Show IANA allocation information for the current IP address.
 
         >>> ip = IP("127.0.0.1")
-        >>> print ip.info()
+        >>> print(ip.info())
         LOOPBACK
         '''
         b = self.bin()
@@ -236,10 +244,10 @@ class IP(object):
         '''
         # hex notation
         if dq.startswith('0x'):
-            ip = long(dq[2:], 16)
-            if ip > 0xffffffffffffffffffffffffffffffffL:
+            ip = int(dq[2:], 16)
+            if ip > MAX_IPV6:
                 raise ValueError('%s: IP address is bigger than 2^128' % dq)
-            if ip <= 0xffffffff:
+            if ip <= MAX_IPV4:
                 self.v = 4
             else:
                 self.v = 6
@@ -266,7 +274,7 @@ class IP(object):
                                      'compressed format malformed' % dq)
                 ix = hx.index('')
                 px = len(hx[ix + 1:])
-                for x in xrange(ix + px + 1, 8):
+                for x in range(ix + px + 1, 8):
                     hx.insert(ix, '0')
             elif dq.endswith('::'):
                 pass
@@ -283,11 +291,11 @@ class IP(object):
                                      'hexlets should be between 0x0000 and 0xffff' % dq)
                 ip += h
             self.v = 6
-            return long(ip, 16)
+            return int(ip, 16)
         elif len(dq) == 32:
             # Assume full heximal notation
             self.v = 6
-            return long(h, 16)
+            return int(h, 16)
 
         # IPv4
         if '.' in dq:
@@ -303,7 +311,7 @@ class IP(object):
             while len(q) < 4:
                 q.insert(1, '0')
             self.v = 4
-            return sum(long(byte) << 8 * index for index, byte in enumerate(q))
+            return sum(int(byte) << 8 * index for index, byte in enumerate(q))
 
         raise ValueError('Invalid address input')
 
@@ -320,14 +328,14 @@ class IP(object):
             ]))
         else:
             n = '%032x' % n
-            return ':'.join(n[4 * x:4 * x + 4] for x in xrange(0, 8))
+            return ':'.join(n[4 * x:4 * x + 4] for x in range(0, 8))
 
     def __str__(self):
         '''
         Return dotquad representation of the IP.
 
         >>> ip = IP("::1")
-        >>> print str(ip)
+        >>> print(str(ip))
         0000:0000:0000:0000:0000:0000:0000:0001
         '''
         return self.dq
@@ -365,19 +373,19 @@ class IP(object):
         return self.ip
 
     def __lt__(self, other):
-        return long(self) < long(IP(other))
+        return int(self) < int(IP(other))
 
     def __le__(self, other):
-        return long(self) <= long(IP(other))
+        return int(self) <= int(IP(other))
 
     def __ge__(self, other):
-        return long(self) >= long(IP(other))
+        return int(self) >= int(IP(other))
 
     def __gt__(self, other):
-        return long(self) > long(IP(other))
+        return int(self) > int(IP(other))
 
     def __eq__(self, other):
-        return long(self) == long(IP(other))
+        return int(self) == int(IP(other))
 
     def size(self):
         return 1
@@ -404,19 +412,19 @@ class IP(object):
         '''
         Compress an IP address to its shortest possible compressed form.
 
-        >>> print IP('127.0.0.1').to_compressed()
+        >>> print(IP('127.0.0.1').to_compressed())
         127.1
-        >>> print IP('127.1.0.1').to_compressed()
+        >>> print(IP('127.1.0.1').to_compressed())
         127.1.1
-        >>> print IP('127.0.1.1').to_compressed()
+        >>> print(IP('127.0.1.1').to_compressed())
         127.0.1.1
-        >>> print IP('2001:1234:0000:0000:0000:0000:0000:5678').to_compressed()
+        >>> print(IP('2001:1234:0000:0000:0000:0000:0000:5678').to_compressed())
         2001:1234::5678
-        >>> print IP('1234:0000:0000:beef:0000:0000:0000:5678').to_compressed()
+        >>> print(IP('1234:0000:0000:beef:0000:0000:0000:5678').to_compressed())
         1234:0:0:beef::5678
-        >>> print IP('0000:0000:0000:0000:0000:0000:0000:0001').to_compressed()
+        >>> print(IP('0000:0000:0000:0000:0000:0000:0000:0001').to_compressed())
         ::1
-        >>> print IP('fe80:0000:0000:0000:0000:0000:0000:0000').to_compressed()
+        >>> print(IP('fe80:0000:0000:0000:0000:0000:0000:0000').to_compressed())
         fe80::
         '''
         if self.v == 4:
@@ -460,18 +468,18 @@ class IP(object):
         for IPv4-compat (::/96), IPv4-mapped (::ffff/96), and 6-to-4 (2002::/16) addresses.
 
         >>> ip = IP('2002:c000:022a::')
-        >>> print ip.to_ipv4()
+        >>> print(ip.to_ipv4())
         192.0.2.42
         '''
         if self.v == 4:
             return self
         else:
             if self.bin().startswith('0' * 96):
-                return IP(long(self), version=4)
+                return IP(int(self), version=4)
             elif self.bin().startswith('0' * 80 + '1' * 16):
-                return IP(long(self) & 0xffffffff, version=4)
-            elif long(self) & 0x20020000000000000000000000000000L:
-                return IP((long(self) - 0x20020000000000000000000000000000L) >> 80, version=4)
+                return IP(int(self) & MAX_IPV4, version=4)
+            elif int(self) & BASE_6TO4:
+                return IP((int(self) - BASE_6TO4) >> 80, version=4)
             else:
                 return ValueError('%s: IPv6 address is not IPv4 compatible or mapped, '
                                   'nor an 6-to-4 IP' % self.dq)
@@ -482,7 +490,7 @@ class IP(object):
         if len(value) == 32:
             return cls(int(value, 2))
         elif len(value) == 128:
-            return cls(long(value, 2))
+            return cls(int(value, 2))
         else:
             return ValueError('%r: invalid binary notation' % (value,))
 
@@ -491,7 +499,7 @@ class IP(object):
         if len(value) == 8:
             return cls(int(value, 16))
         elif len(value) == 32:
-            return cls(long(value, 16))
+            return cls(int(value, 16))
         else:
             raise ValueError('%r: invalid hexadecimal notation' % (value,))
 
@@ -500,23 +508,23 @@ class IP(object):
         Convert (an IPv4) IP address to an IPv6 address.
 
         >>> ip = IP('192.0.2.42')
-        >>> print ip.to_ipv6()
+        >>> print(ip.to_ipv6())
         2002:c000:022a:0000:0000:0000:0000:0000
 
-        >>> print ip.to_ipv6('compat')
+        >>> print(ip.to_ipv6('compat'))
         0000:0000:0000:0000:0000:0000:c000:022a
 
-        >>> print ip.to_ipv6('mapped')
+        >>> print(ip.to_ipv6('mapped'))
         0000:0000:0000:0000:0000:ffff:c000:022a
         '''
         assert type in ['6-to-4', 'compat', 'mapped'], 'Conversion type not supported'
         if self.v == 4:
             if type == '6-to-4':
-                return IP(0x20020000000000000000000000000000L | long(self) << 80, version=6)
+                return IP(BASE_6TO4 | int(self) << 80, version=6)
             elif type == 'compat':
-                return IP(long(self), version=6)
+                return IP(int(self), version=6)
             elif type == 'mapped':
-                return IP(0xffff << 32 | long(self), version=6)
+                return IP(0xffff << 32 | int(self), version=6)
         else:
             return self
 
@@ -526,9 +534,9 @@ class IP(object):
         .ip6.arpa for IPv6 addresses.
 
         >>> ip = IP('192.0.2.42')
-        >>> print ip.to_reverse()
+        >>> print(ip.to_reverse())
         42.2.0.192.in-addr.arpa
-        >>> print ip.to_ipv6().to_reverse()
+        >>> print(ip.to_ipv6().to_reverse())
         0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.0.a.2.2.0.0.0.0.c.2.0.0.2.ip6.arpa
         '''
         if self.v == 4:
@@ -554,7 +562,7 @@ class Network(IP):
 
 
     >>> localnet = Network('127.0.0.1/8')
-    >>> print localnet
+    >>> print(localnet)
     127.0.0.1/8
     '''
 
@@ -563,7 +571,7 @@ class Network(IP):
         Network netmask derived from subnet size, as IP object.
 
         >>> localnet = Network('127.0.0.1/8')
-        >>> print localnet.netmask()
+        >>> print(localnet.netmask())
         255.0.0.0
         '''
         return IP(self.netmask_long(), version=self.version())
@@ -573,20 +581,20 @@ class Network(IP):
         Network netmask derived from subnet size, as long.
 
         >>> localnet = Network('127.0.0.1/8')
-        >>> print localnet.netmask_long()
+        >>> print(localnet.netmask_long())
         4278190080
         '''
         if self.version() == 4:
-            return (0xffffffffL >> (32 - self.mask)) << (32 - self.mask)
+            return (MAX_IPV4 >> (32 - self.mask)) << (32 - self.mask)
         else:
-            return (0xffffffffffffffffffffffffffffffffL >> (128 - self.mask)) << (128 - self.mask)
+            return (MAX_IPV6 >> (128 - self.mask)) << (128 - self.mask)
 
     def network(self):
         '''
         Network address, as IP object.
 
         >>> localnet = Network('127.128.99.3/8')
-        >>> print localnet.network()
+        >>> print(localnet.network())
         127.0.0.0
         '''
         return IP(self.network_long(), version=self.version())
@@ -596,7 +604,7 @@ class Network(IP):
         Network address, as long.
 
         >>> localnet = Network('127.128.99.3/8')
-        >>> print localnet.network_long()
+        >>> print(localnet.network_long())
         2130706432
         '''
         return self.ip & self.netmask_long()
@@ -606,7 +614,7 @@ class Network(IP):
         Broadcast address, as IP object.
 
         >>> localnet = Network('127.0.0.1/8')
-        >>> print localnet.broadcast()
+        >>> print(localnet.broadcast())
         127.255.255.255
         '''
         # XXX: IPv6 doesn't have a broadcast address, but it's used for other
@@ -618,14 +626,14 @@ class Network(IP):
         Broadcast address, as long.
 
         >>> localnet = Network('127.0.0.1/8')
-        >>> print localnet.broadcast_long()
+        >>> print(localnet.broadcast_long())
         2147483647
         '''
         if self.version() == 4:
-            return self.network_long() | (0xffffffffL - self.netmask_long())
+            return self.network_long() | (MAX_IPV4 - self.netmask_long())
         else:
             return self.network_long() \
-                | (0xffffffffffffffffffffffffffffffffL - self.netmask_long())
+                | (MAX_IPV6 - self.netmask_long())
 
     def host_first(self):
         '''
@@ -675,7 +683,7 @@ class Network(IP):
         Return CIDR representation of the network.
 
         >>> net = Network("::1/64")
-        >>> print str(net)
+        >>> print(str(net))
         0000:0000:0000:0000:0000:0000:0000:0001/64
         '''
         return "%s/%d" % (self.dq, self.mask)
@@ -727,7 +735,7 @@ class Network(IP):
         objects.
 
         >>> for ip in Network('192.168.114.0/30'):
-        ...     print str(ip)
+        ...     print(str(ip))
         ...
         192.168.114.1
         192.168.114.2
@@ -759,7 +767,7 @@ class Network(IP):
         Number of ip's within the network.
 
         >>> net = Network('192.0.2.0/24')
-        >>> print net.size()
+        >>> print(net.size())
         256
         '''
         return 2 ** ((self.version() == 4 and 32 or 128) - self.mask)
@@ -778,23 +786,23 @@ if __name__ == '__main__':
 
     for ip, mask, test_ip in tests:
         net = Network(ip, mask)
-        print '==========='
-        print 'ip address:', net
-        print 'to ipv6...:', net.to_ipv6()
-        print 'ip version:', net.version()
-        print 'ip info...:', net.info()
-        print 'subnet....:', net.subnet()
-        print 'num ip\'s..:', net.size()
-        print 'integer...:', long(net)
-        print 'hex.......:', net.hex()
-        print 'netmask...:', net.netmask()
+        print('===========')
+        print('ip address:', net)
+        print('to ipv6...:', net.to_ipv6())
+        print('ip version:', net.version())
+        print('ip info...:', net.info())
+        print('subnet....:', net.subnet())
+        print('num ip\'s..:', net.size())
+        print('integer...:', int(net))
+        print('hex.......:', net.hex())
+        print('netmask...:', net.netmask())
         # Not implemented in IPv6
         if net.version() == 4:
-            print 'network...:', net.network()
-            print 'broadcast.:', net.broadcast()
-        print 'first host:', net.host_first()
-        print 'reverse...:', net.host_first().to_reverse()
-        print 'last host.:', net.host_last()
-        print 'reverse...:', net.host_last().to_reverse()
+            print('network...:', net.network())
+            print('broadcast.:', net.broadcast())
+        print('first host:', net.host_first())
+        print('reverse...:', net.host_first().to_reverse())
+        print('last host.:', net.host_last())
+        print('reverse...:', net.host_last().to_reverse())
         for ip in test_ip:
-            print '%s in network: ' % ip, ip in net
+            print('%s in network: ' % ip, ip in net)
