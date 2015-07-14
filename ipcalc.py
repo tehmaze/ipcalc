@@ -1,8 +1,6 @@
 # -*- coding: utf-8 -*-
 # pep8-ignore: E501, E241
 
-from __future__ import print_function
-
 """
 IP subnet calculator.
 
@@ -33,6 +31,8 @@ Thanks to all who have contributed:
 
 https://github.com/tehmaze/ipcalc/graphs/contributors
 """
+
+from __future__ import print_function
 
 __version__ = '1.99.0'
 
@@ -349,18 +349,23 @@ class IP(object):
         return self.ip
 
     def __lt__(self, other):
+        """Less than other test."""
         return int(self) < int(IP(other))
 
     def __le__(self, other):
+        """Less than or equal to other test."""
         return int(self) <= int(IP(other))
 
     def __ge__(self, other):
+        """Greater than or equal to other test."""
         return int(self) >= int(IP(other))
 
     def __gt__(self, other):
+        """Greater than other."""
         return int(self) > int(IP(other))
 
     def __eq__(self, other):
+        """Test if other is address is equal to the current address."""
         return int(self) == int(IP(other))
 
     def __add__(self, offset):
