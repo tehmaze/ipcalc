@@ -363,6 +363,18 @@ class IP(object):
     def __eq__(self, other):
         return int(self) == int(IP(other))
 
+    def __add__(self, offset):
+        """Add numeric offset to the IP."""
+        if not isinstance(offset, six.integer_types):
+            return ValueError('Value is not numeric')
+        return self.__class__(self.ip + offset, mask=self.mask, version=self.v)
+
+    def __sub__(self, offset):
+        """Substract numeric offset from the IP."""
+        if not isinstance(offset, six.integer_types):
+            return ValueError('Value is not numeric')
+        return self.__class__(self.ip - offset, mask=self.mask, version=self.v)
+
     def size(self):
         """Return network size."""
         return 1
