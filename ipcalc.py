@@ -161,10 +161,13 @@ class IP(object):
         elif isinstance(self.mask, basestring):
             limit = [32, 128][':' in self.mask]
             inverted = ~self._dqtoi(self.mask)
-            count = 0
-            while inverted & pow(2, count):
-                count += 1
-            self.mask = (limit - count)
+            if inverted == -1:
+                self.mask = 0
+            else:
+                count = 0
+                while inverted & pow(2, count):
+                    count += 1
+                self.mask = (limit - count)
         else:
             raise ValueError('Invalid netmask')
         # Validate subnet size
