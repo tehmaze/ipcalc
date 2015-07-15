@@ -38,7 +38,6 @@ __version__ = '1.99.0'
 
 
 import re
-import warnings
 import six
 
 
@@ -221,76 +220,85 @@ class IP(object):
         """Convert dotquad or hextet to long."""
         # hex notation
         if dq.startswith('0x'):
-            ip = int(dq[2:], 16)
-            if ip > MAX_IPV6:
-                raise ValueError('%s: IP address is bigger than 2^128' % dq)
-            if ip <= MAX_IPV4:
-                self.v = 4
-            else:
-                self.v = 6
-            return ip
+            self._dqtoi_hex(self, dq)
 
         # IPv6
         if ':' in dq:
-            # Split hextets
-            hx = dq.split(':')
-            if ':::' in dq:
-                raise ValueError("%s: IPv6 address can't contain :::" % dq)
-            # Mixed address (or 4-in-6), ::ffff:192.0.2.42
-            if '.' in dq:
-                return self._dqtoi(hx[-1])
-            if len(hx) > 8:
-                raise ValueError('%s: IPv6 address with more than 8 hexlets' % dq)
-            elif len(hx) < 8:
-                # No :: in address
-                if '' not in hx:
-                    raise ValueError('%s: IPv6 address invalid: '
-                                     'compressed format malformed' % dq)
-                elif not (dq.startswith('::') or dq.endswith('::')) and len([x for x in hx if x == '']) > 1:
-                    raise ValueError('%s: IPv6 address invalid: '
-                                     'compressed format malformed' % dq)
-                ix = hx.index('')
-                px = len(hx[ix + 1:])
-                for x in range(ix + px + 1, 8):
-                    hx.insert(ix, '0')
-            elif dq.endswith('::'):
-                pass
-            elif '' in hx:
-                raise ValueError('%s: IPv6 address invalid: '
-                                 'compressed format detected in full notation' % dq())
-            ip = ''
-            hx = [x == '' and '0' or x for x in hx]
-            for h in hx:
-                if len(h) < 4:
-                    h = '%04x' % int(h, 16)
-                if not 0 <= int(h, 16) <= 0xffff:
-                    raise ValueError('%r: IPv6 address invalid: '
-                                     'hexlets should be between 0x0000 and 0xffff' % dq)
-                ip += h
-            self.v = 6
-            return int(ip, 16)
+            return self._dqtoi_ipv6(dq)
         elif len(dq) == 32:
             # Assume full heximal notation
             self.v = 6
-            return int(h, 16)
+            return int(dq, 16)
 
         # IPv4
         if '.' in dq:
-            q = dq.split('.')
-            q.reverse()
-            if len(q) > 4:
-                raise ValueError('%s: IPv4 address invalid: '
-                                 'more than 4 bytes' % dq)
-            for x in q:
-                if not 0 <= int(x) <= 255:
-                    raise ValueError('%s: IPv4 address invalid: '
-                                     'bytes should be between 0 and 255' % dq)
-            while len(q) < 4:
-                q.insert(1, '0')
-            self.v = 4
-            return sum(int(byte) << 8 * index for index, byte in enumerate(q))
+            return self._dqtoi_ipv4(dq)
 
         raise ValueError('Invalid address input')
+
+    def _dqtoi_hex(self, dq):
+        ip = int(dq[2:], 16)
+        if ip > MAX_IPV6:
+            raise ValueError('%s: IP address is bigger than 2^128' % dq)
+        if ip <= MAX_IPV4:
+            self.v = 4
+        else:
+            self.v = 6
+        return ip
+
+    def _dqtoi_ipv4(self, dq):
+        q = dq.split('.')
+        q.reverse()
+        if len(q) > 4:
+            raise ValueError('%s: IPv4 address invalid: '
+                             'more than 4 bytes' % dq)
+        for x in q:
+            if not 0 <= int(x) <= 255:
+                raise ValueError('%s: IPv4 address invalid: '
+                                 'bytes should be between 0 and 255' % dq)
+        while len(q) < 4:
+            q.insert(1, '0')
+        self.v = 4
+        return sum(int(byte) << 8 * index for index, byte in enumerate(q))
+
+    def _dqtoi_ipv6(self, dq):
+        # Split hextets
+        hx = dq.split(':')
+        if ':::' in dq:
+            raise ValueError("%s: IPv6 address can't contain :::" % dq)
+        # Mixed address (or 4-in-6), ::ffff:192.0.2.42
+        if '.' in dq:
+            return self._dqtoi(hx[-1])
+        if len(hx) > 8:
+            raise ValueError('%s: IPv6 address with more than 8 hexlets' % dq)
+        elif len(hx) < 8:
+            # No :: in address
+            if '' not in hx:
+                raise ValueError('%s: IPv6 address invalid: '
+                                 'compressed format malformed' % dq)
+            elif not (dq.startswith('::') or dq.endswith('::')) and len([x for x in hx if x == '']) > 1:
+                raise ValueError('%s: IPv6 address invalid: '
+                                 'compressed format malformed' % dq)
+            ix = hx.index('')
+            px = len(hx[ix + 1:])
+            for x in range(ix + px + 1, 8):
+                hx.insert(ix, '0')
+        elif dq.endswith('::'):
+            pass
+        elif '' in hx:
+            raise ValueError('%s: IPv6 address invalid: '
+                             'compressed format detected in full notation' % dq())
+        ip = ''
+        hx = [x == '' and '0' or x for x in hx]
+        for h in hx:
+            if len(h) < 4:
+                h = '%04x' % int(h, 16)
+            if not 0 <= int(h, 16) <= 0xffff:
+                raise ValueError('%r: IPv6 address invalid: '
+                                 'hexlets should be between 0x0000 and 0xffff' % dq)
+            ip += h
+        self.v = 6
+        return int(ip, 16)
 
     def _itodq(self, n):
         """Convert long to dotquad or hextet."""
