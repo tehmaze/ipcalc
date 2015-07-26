@@ -132,6 +132,9 @@ class IP(object):
                 self.v = version or 6
                 self.dq = self._itodq(ip)
         else:
+            # network identifier
+            if '%' in ip:
+                ip = ip.split('%', 1)[0]
             # If string is in CIDR or netmask notation
             if '/' in ip:
                 ip, mask = ip.split('/', 1)
