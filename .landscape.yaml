@@ -1,0 +1,17 @@
+doc-warnings: yes
+test-warnings: yes
+strictness: high
+max-line-length: 120
+autodetect: yes
+requirements:
+  - requirements.txt
+ignore-paths:
+  - doc
+
+# Test utilities
+pep8:
+  run: true
+pep257:
+  run: true
+pyflakes:
+  run: true
