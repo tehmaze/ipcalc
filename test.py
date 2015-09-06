@@ -157,6 +157,13 @@ class TestSuite(unittest.TestCase):
         self.assertFalse('123::456' in net)
         self.assertTrue('2001:dead:beef:babe::1234' in net)
 
+    def test_ipv6_5(self):
+        # test parsing of 4-in-6 IPv6 address
+        ip = IP('8000::0.0.0.1')
+        self.assertTrue(ip.ip == ((2**127) + 1))
+        ip = IP('8000:8000::0.0.0.1')
+        self.assertTrue(ip.ip == ((2**127) + (2**111) + 1))
+
 
 class TestIP(unittest.TestCase):
 
