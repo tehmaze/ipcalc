@@ -271,7 +271,9 @@ class IP(object):
             raise ValueError("%s: IPv6 address can't contain :::" % dq)
         # Mixed address (or 4-in-6), ::ffff:192.0.2.42
         if '.' in dq:
-            return self._dqtoi(hx[-1])
+            col_ind = dq.rfind(":")
+            ipv6part = dq[:col_ind]+":0:0"
+            return self._dqtoi_ipv6(ipv6part) + self._dqtoi(hx[-1])
         if len(hx) > 8:
             raise ValueError('%s: IPv6 address with more than 8 hexlets' % dq)
         elif len(hx) < 8:
