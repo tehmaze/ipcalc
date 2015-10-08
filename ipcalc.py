@@ -597,6 +597,19 @@ class Network(IP):
         else:
             return (MAX_IPV6 >> (128 - self.mask)) << (128 - self.mask)
 
+    def wildcard(self):
+        """
+        Wildcard mask, as IP object.
+
+        >>> localnet = Network('127.0.0.1/8')
+        >>> print(localnet.wildcard())
+        ???
+        """
+        if self.version() == 4:
+            return IP(MAX_IPV4 - self.netmask_long(), version=self.version())
+        else:
+            raise ValueError('IPv6 does not support wildcard masks.')
+
     def network(self):
         """
         Network address, as IP object.
