@@ -223,7 +223,7 @@ class IP(object):
         """Convert dotquad or hextet to long."""
         # hex notation
         if dq.startswith('0x'):
-            self._dqtoi_hex(self, dq)
+            return self._dqtoi_hex(dq)
 
         # IPv6
         if ':' in dq:
