@@ -697,23 +697,23 @@ class Network(IP):
 
     def __lt__(self, other):
         """Compare less than."""
-        return self.size() < IP(other).size()
+        return self.size() < Network(other).size()
 
     def __le__(self, other):
         """Compare less than or equal to."""
-        return self.size() <= IP(other).size()
+        return self.size() <= Network(other).size()
 
     def __gt__(self, other):
         """Compare greater than."""
-        return self.size() > IP(other).size()
+        return self.size() > Network(other).size()
 
     def __ge__(self, other):
         """Compare greater than or equal to."""
-        return self.size() >= IP(other).size()
+        return self.size() >= Network(other).size()
 
     def __eq__(self, other):
         """Compare equal."""
-        return self.size() == IP(other).size()
+        return self.size() == Network(other).size()
 
     def __getitem__(self, key):
         """Get the nth item or slice of the network."""
