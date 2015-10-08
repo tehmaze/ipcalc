@@ -713,7 +713,8 @@ class Network(IP):
 
     def __eq__(self, other):
         """Compare equal."""
-        return self.size() == Network(other).size()
+        other = Network(other)
+        return int(self) == int(other) and self.size() == other.size()
 
     def __getitem__(self, key):
         """Get the nth item or slice of the network."""

@@ -195,18 +195,18 @@ class TestNetwork(unittest.TestCase):
         self.assertEqual(str(a), '192.168.0.100/28')
         self.assertEqual(a.size(), 16)
         self.assertEqual(a.size(), len(a))
-        self.assertEqual(long(a), 0xC0A80064)
-        for i in xrange(a.size()):
-            self.assertEqual(long(a[i]), i + 0xC0A80064)
+        self.assertEqual(int(a), 0xC0A80064)
+        for i in range(a.size()):
+            self.assertEqual(int(a[i]), i + 0xC0A80064)
 
         self.assertRaises(IndexError, lambda: a[a.size()])
 
     def test_indexers(self):
-        expected = range(long(0xC0A80B00), long(0xC0A80C00))
+        expected = range(int(0xC0A80B00), int(0xC0A80C00))
         self.assertEqual(self.network.size(), len(expected))
-        for i in xrange(self.network.size()):
-            self.assertEqual(long(self.network[i]), expected[i])
-        self.assertEqual(long(self.network[-1]), expected[-1])
+        for i in range(self.network.size()):
+            self.assertEqual(int(self.network[i]), expected[i])
+        self.assertEqual(int(self.network[-1]), expected[-1])
 
     def test_contains(self):
         self.assertTrue(IP('192.168.11.0') in self.network)
