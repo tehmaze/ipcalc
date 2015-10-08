@@ -603,7 +603,7 @@ class Network(IP):
 
         >>> localnet = Network('127.0.0.1/8')
         >>> print(localnet.wildcard())
-        ???
+        0.255.255.255
         """
         if self.version() == 4:
             return IP(MAX_IPV4 - self.netmask_long(), version=self.version())
