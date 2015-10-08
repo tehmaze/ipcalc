@@ -394,7 +394,8 @@ class IP(object):
             return ValueError('Value is not numeric')
         return self.__class__(self.ip - offset, mask=self.mask, version=self.v)
 
-    def size(self):
+    @staticmethod
+    def size():
         """Return network size."""
         return 1
 
