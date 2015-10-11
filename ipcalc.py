@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 # pep8-ignore: E501, E241
+# pylint: disable=invalid-name
 
 """
 IP subnet calculator.
@@ -223,7 +224,7 @@ class IP(object):
         """Convert dotquad or hextet to long."""
         # hex notation
         if dq.startswith('0x'):
-            self._dqtoi_hex(self, dq)
+            return self._dqtoi_hex(dq)
 
         # IPv6
         if ':' in dq:
@@ -272,7 +273,7 @@ class IP(object):
         # Mixed address (or 4-in-6), ::ffff:192.0.2.42
         if '.' in dq:
             col_ind = dq.rfind(":")
-            ipv6part = dq[:col_ind]+":0:0"
+            ipv6part = dq[:col_ind] + ":0:0"
             return self._dqtoi_ipv6(ipv6part) + self._dqtoi(hx[-1])
         if len(hx) > 8:
             raise ValueError('%s: IPv6 address with more than 8 hexlets' % dq)
@@ -393,7 +394,8 @@ class IP(object):
             return ValueError('Value is not numeric')
         return self.__class__(self.ip - offset, mask=self.mask, version=self.v)
 
-    def size(self):
+    @staticmethod
+    def size():
         """Return network size."""
         return 1
 
@@ -559,6 +561,10 @@ class IP(object):
         """Used for comparisons."""
         return (self.dq, self.mask)
 
+    def guess_network(self):
+        netmask = 0x100000000 - 2**(32-self.mask)
+        return Network(netmask & self.ip, mask=self.mask)
+
 
 class Network(IP):
 
@@ -693,23 +699,24 @@ class Network(IP):
 
     def __lt__(self, other):
         """Compare less than."""
-        return self.size() < IP(other).size()
+        return self.size() < Network(other).size()
 
     def __le__(self, other):
         """Compare less than or equal to."""
-        return self.size() <= IP(other).size()
+        return self.size() <= Network(other).size()
 
     def __gt__(self, other):
         """Compare greater than."""
-        return self.size() > IP(other).size()
+        return self.size() > Network(other).size()
 
     def __ge__(self, other):
         """Compare greater than or equal to."""
-        return self.size() >= IP(other).size()
+        return self.size() >= Network(other).size()
 
     def __eq__(self, other):
         """Compare equal."""
-        return self.size() == IP(other).size()
+        other = Network(other)
+        return int(self) == int(other) and self.size() == other.size()
 
     def __getitem__(self, key):
         """Get the nth item or slice of the network."""
@@ -721,11 +728,13 @@ class Network(IP):
             slice_step = key.step or 1
             arr = list()
             while x < slice_stop:
-                arr.append(IP(int(self) + x))
+                arr.append(IP(int(self) + x, mask=self.subnet()))
                 x += slice_step
             return tuple(arr)
         else:
-            return IP(int(self) + key)
+            if key >= self.size():
+                raise IndexError("Index out of range: %d > %d" % (key, self.size()-1))
+            return IP(int(self) + (key + self.size()) % self.size(), mask=self.subnet())
 
     def __iter__(self):
         """Generate a range of usable host IP addresses within the network.
@@ -766,6 +775,9 @@ class Network(IP):
         256
         """
         return 2 ** ({4: 32, 6: 128}[self.version()] - self.mask)
+
+    def __len__(self):
+        return self.size()
 
 
 if __name__ == '__main__':
