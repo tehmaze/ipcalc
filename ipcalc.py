@@ -562,8 +562,12 @@ class IP(object):
         return (self.dq, self.mask)
 
     def guess_network(self):
-        netmask = 0x100000000 - 2**(32-self.mask)
-        return Network(netmask & self.ip, mask=self.mask)
+        if self.v == 4:
+          netmask = 0x100000000 - 2**(32-self.mask)
+          return Network(netmask & self.ip, mask=self.mask)
+        else:
+          netmask = 2**128 - 2**(128-self.mask)
+          return Network(netmask & self.ip, mask=self.mask)
 
 
 class Network(IP):
