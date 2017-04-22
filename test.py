@@ -86,8 +86,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:ffff:ffff:ffff:ffff:ffff')
         self.assertTrue(net.version() == 6)
         self.assertTrue(str(net.network()) == '0123:0000:0000:0000:0000:0000:0000:0000')
-        with self.assertRaises(ValueError):
-            net.wildcard()
+        self.assertTrue(str(net.wildcard()) == '0000:0000:0000:0000:0000:0000:0000:0000')
         self.assertTrue(str(net.broadcast()) == '0123:0000:0000:0000:0000:0000:0000:0000')
         self.assertFalse('123:456::' in net)
         self.assertTrue('123::' in net)
@@ -109,8 +108,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(int(net) == 0x42)
         self.assertTrue(net.hex().lower() == '00000000000000000000000000000042')
         self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:ffff:0000:0000:0000:0000')
-        with self.assertRaises(ValueError):
-            net.wildcard()
+        self.assertTrue(str(net.wildcard()) == '0000:0000:0000:0000:ffff:ffff:ffff:ffff')
         self.assertTrue(net.version() == 6)
         self.assertTrue(str(net.network()) == '0000:0000:0000:0000:0000:0000:0000:0000')
         self.assertTrue(str(net.broadcast()) == '0000:0000:0000:0000:ffff:ffff:ffff:ffff')
@@ -136,8 +134,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(int(net) == 0x2001deadbeef0001c01dc01a00000000)
         self.assertTrue(net.hex().lower() == '2001deadbeef0001c01dc01a00000000')
         self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:0000:0000:0000:0000:0000')
-        with self.assertRaises(ValueError):
-            net.wildcard()
+        self.assertTrue(str(net.wildcard()) == '0000:0000:0000:ffff:ffff:ffff:ffff:ffff')
         self.assertTrue(net.version() == 6)
         self.assertTrue(str(net.network()) == '2001:dead:beef:0000:0000:0000:0000:0000')
         self.assertTrue(str(net.broadcast()) == '2001:dead:beef:ffff:ffff:ffff:ffff:ffff')
@@ -159,8 +156,7 @@ class TestSuite(unittest.TestCase):
         self.assertTrue(int(net) == 0x2001deadbeef0001c01dc01a00000000)
         self.assertTrue(net.hex().lower() == '2001deadbeef0001c01dc01a00000000')
         self.assertTrue(str(net.netmask()) == 'ffff:ffff:ffff:0000:0000:0000:0000:0000')
-        with self.assertRaises(ValueError):
-            net.wildcard()
+        self.assertTrue(str(net.wildcard()) == '0000:0000:0000:ffff:ffff:ffff:ffff:ffff')
         self.assertTrue(net.version() == 6)
         self.assertTrue(str(net.network()) == '2001:dead:beef:0000:0000:0000:0000:0000')
         self.assertTrue(str(net.broadcast()) == '2001:dead:beef:ffff:ffff:ffff:ffff:ffff')

@@ -608,7 +608,7 @@ class Network(IP):
         if self.version() == 4:
             return IP(MAX_IPV4 - self.netmask_long(), version=self.version())
         else:
-            raise ValueError('IPv6 does not support wildcard masks.')
+            return IP(MAX_IPV6 - self.netmask_long(), version=self.version())
 
     def network(self):
         """
