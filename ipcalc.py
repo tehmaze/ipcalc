@@ -565,6 +565,50 @@ class IP(object):
         netmask = 0x100000000 - 2**(32-self.mask)
         return Network(netmask & self.ip, mask=self.mask)
 
+    @staticmethod
+    def mac_to_slaac_suffix_int(mac):
+        """ converts a mac address in the form 'XX:XX:XX:XX:XX:XX' into the
+        an address with zeroes for the first 64bits and the SLAAC or Link/Local
+        bits for the last 64 bits and returned in integer form.
+        """
+        mac = mac.strip()
+        invalidMacMsg = "mac address of '{}' is not valid".format(mac)
+        macparts = mac.upper().split(":")
+        if not len(macparts) == 6:
+            raise ValueError(invalidMacMsg)
+        addr = ((int(macparts[0], 16) ^ 0x02) << (8*7)) + \
+               (int(macparts[1], 16) << (8*6)) + \
+               (int(macparts[2], 16) << (8*5)) + \
+               (0xfffe << (8*3)) + \
+               (int(macparts[3], 16) << (8*2)) + \
+               (int(macparts[4], 16) << 8) + \
+               (int(macparts[5], 16))
+        return addr
+
+    @staticmethod
+    def mac_to_slaac_suffix(mac):
+        """ converts a mac address in the form XX:XX:XX:XX:XX:XX into the
+        an address with zeroes for the first 64bits and the SLAAC or Link/Local
+        bits for the last 64 bits
+        """
+        addr = IP.mac_to_slaac_suffix_int(mac)
+        return IP(addr, mask=64)
+
+    @staticmethod
+    def mac_to_linklocal(mac):
+        """Convert a MAC address in the form 'XX:XX:XX:XX:XX:XX' to an IPv6
+        Link/Local address.
+        """
+        return IP((0xFE80 << 112) + IP.mac_to_slaac_suffix_int(mac), mask=64)
+
+    def toSlaac(self, mac):
+        """ For a given mac address in the form 'XX:XX:XX:XX:XX:XX', return the
+        SLAAC address with the same for this instance's address (assuming a
+        64 bit network mask, which *should* be the case).
+        """
+        addr = self.mac_to_slaac_suffix_int(mac)
+        return IP((self.ip & (0xFFFFFFFFFFFFFFFF0000000000000000) | addr),
+                   mask=64)
 
 class Network(IP):
 
