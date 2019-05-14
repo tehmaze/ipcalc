@@ -382,6 +382,10 @@ class IP(object):
         """Test if other is address is equal to the current address."""
         return int(self) == int(IP(other))
 
+    def __ne__(self, other):
+        """Test if other is address is not equal to the current address."""
+        return int(self) != int(IP(other))
+
     def __add__(self, offset):
         """Add numeric offset to the IP."""
         if not isinstance(offset, six.integer_types):
@@ -717,6 +721,15 @@ class Network(IP):
         """Compare equal."""
         other = Network(other)
         return int(self) == int(other) and self.size() == other.size()
+
+    def __ne__(self, other):
+        """Compare not equal."""
+        other = Network(other)
+        return int(self) != int(other) or self.size() != other.size()
+
+    def __hash__(self, other):
+        """Hash the current network."""
+        return hash(int(self))
 
     def __getitem__(self, key):
         """Get the nth item or slice of the network."""
