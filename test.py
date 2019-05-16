@@ -164,6 +164,15 @@ class TestSuite(unittest.TestCase):
         ip = IP('8000:8000::0.0.0.1')
         self.assertTrue(ip.ip == ((2**127) + (2**111) + 1))
 
+    def test_IP6_toSlaacc(self):
+        ip1 = IP("fd07:2218:1350:fa::a/64")
+        self.assertTrue(ip1.toSlaac("52:54:00:31:2a:c5").to_compressed() == "fd07:2218:1350:fa:5054:ff:fe31:2ac5")
+        ip2 = IP("fdcd:41a4:5559:fa02::12/64")
+        self.assertTrue(ip2.toSlaac("00:13:C6:01:51:5D").to_compressed() == "fdcd:41a4:5559:fa02:213:c6ff:fe01:515d")
+
+    def test_IP6_mac_to_linklocal(self):
+        self.assertTrue(IP.mac_to_linklocal("52:54:00:31:2a:c5").to_compressed() == "fe80::5054:ff:fe31:2ac5")
+        self.assertTrue(IP.mac_to_linklocal("00:13:C6:01:51:5D").to_compressed() == "fe80::213:c6ff:fe01:515d")
 
 class TestIP(unittest.TestCase):
 
