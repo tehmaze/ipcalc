@@ -48,4 +48,14 @@ Documentation is available from http://ipcalc.rtfd.org/
       url='https://github.com/tehmaze/ipcalc/',
       py_modules=['ipcalc'],
       install_requires=['six'],
+      classifiers=[
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.7',
+          'Programming Language :: Python :: 3',
+          'Programming Language :: Python :: 3.3',
+          'Programming Language :: Python :: 3.4',
+          'Programming Language :: Python :: 3.5',
+          'Programming Language :: Python :: 3.6',
+          'Programming Language :: Python :: 3.7',
+      ],
       )
