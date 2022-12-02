@@ -1,11 +1,15 @@
 #!/usr/bin/env python
 
 from distutils.core import setup
+import os
 
-setup(name='ipcalc',
-      version='1.99.0',
-      description='IP subnet calculator',
-      long_description='''
+scripts = [os.path.join("scripts", "icalc.py")]
+setup(
+    name="ipcalc",
+    version="1.99.1",
+    description="IP subnet calculator",
+    scripts=scripts,
+    long_description="""
 About
 =====
 
@@ -33,6 +37,32 @@ Example Usage
     >>> long(IP('fe80::213:ceff:fee8:c937'))
     338288524927261089654168587652869703991L
 
+A convenice script has been added for doing basic command line checks, icalc.py.
+
+::
+
+    $ icalc.py 192.168.0.1/25
+
+    Network Information
+    **************************************************
+    Network:                192.168.0.0
+    Broadcast:              192.168.0.127
+    Netmask:                255.255.255.128
+    Host Start:             192.168.0.1
+    Host End:               192.168.0.126
+
+
+    $ icalc.py 2001:db8:0:1000::/64
+
+    Network Information
+    **************************************************
+    Network:                2001:0db8:0000:1000:0000:0000:0000:0000
+    Broadcast:              2001:0db8:0000:1000:ffff:ffff:ffff:ffff
+    Netmask:                ffff:ffff:ffff:ffff:0000:0000:0000:0000
+    Host Start:             2001:0db8:0000:1000:0000:0000:0000:0001
+    Host End:               2001:0db8:0000:1000:ffff:ffff:ffff:fffe
+
+
 Bugs/Features
 =============
 
@@ -42,10 +72,10 @@ Documentation
 =============
 
 Documentation is available from http://ipcalc.rtfd.org/
-''',
-      author='Wijnand Modderman-Lenstra',
-      author_email='maze@pyth0n.org',
-      url='https://github.com/tehmaze/ipcalc/',
-      py_modules=['ipcalc'],
-      install_requires=['six'],
-      )
+""",
+    author="Wijnand Modderman-Lenstra",
+    author_email="maze@pyth0n.org",
+    url="https://github.com/tehmaze/ipcalc/",
+    py_modules=["ipcalc"],
+    install_requires=["six"],
+)
