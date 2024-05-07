@@ -293,7 +293,7 @@ class IP(object):
             pass
         elif '' in hx:
             raise ValueError('%s: IPv6 address invalid: '
-                             'compressed format detected in full notation' % dq())
+                             'compressed format detected in full notation' % dq)
         ip = ''
         hx = [x == '' and '0' or x for x in hx]
         for h in hx:
