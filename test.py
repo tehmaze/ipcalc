@@ -173,14 +173,20 @@ class TestSuite(unittest.TestCase):
     def test_ipv6_7(self):
         net = Network('2002:0101:0101:0000:0000::0000:0000', 48)
         self.assertTrue(str(net) == '2002:0101:0101:0000:0000:0000:0000:0000/48')
+        self.assertTrue(net.subnet() == 48)
+        self.assertTrue(net.version() == 6)
 
     def test_ipv6_8(self):
         net = Network('2001:db8:0:0:0:ff00:42:8329', 33)
         self.assertTrue(str(net) == '2001:0db8:0000:0000:0000:ff00:0042:8329/33')
+        self.assertTrue(net.subnet() == 33)
+        self.assertTrue(net.version() == 6)
 
     def test_ipv6_9(self):
         net = Network('2001:db8::1:0:0:1', 115)
         self.assertTrue(str(net) == '2001:0db8:0000:0000:0001:0000:0000:0001/115')
+        self.assertTrue(net.subnet() == 115)
+        self.assertTrue(net.version() == 6)
 
 
 class TestIP(unittest.TestCase):
