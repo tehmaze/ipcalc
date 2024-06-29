@@ -165,7 +165,7 @@ class IP(object):
             raise ValueError('Invalid netmask')
 
         #hard fix https://github.com/tehmaze/ipcalc/issues/67
-        if self.v != 6 and len(self.dq) > 15 and ':' in self.dq:
+        if self.v != 6 and (len(self.dq) > 15 or ':' in self.dq):
             self.v = 6
 
         # Validate subnet size
