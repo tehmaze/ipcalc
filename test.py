@@ -191,7 +191,7 @@ class TestSuite(unittest.TestCase):
     def test_ipv6_10(self):
         net = Network('0::1.2.3.4', 99)
         self.assertTrue(str(net) == '0000:0000:0000:0000:0000:0000:0102:0304/99')
-        self.assertTrue(net.subnet() == 115)
+        self.assertTrue(net.subnet() == 99)
         self.assertTrue(net.version() == 6)
 
 
