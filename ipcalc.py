@@ -163,6 +163,11 @@ class IP(object):
                 self.mask = (limit - count)
         else:
             raise ValueError('Invalid netmask')
+
+        #hard fix https://github.com/tehmaze/ipcalc/issues/67
+        if self.v != 6 and len(self.dq) > 15 and ':' in self.dq:
+            self.v = 6
+
         # Validate subnet size
         if self.v == 6:
             self.dq = self._itodq(self.ip)
@@ -291,9 +296,12 @@ class IP(object):
                 hx.insert(ix, '0')
         elif dq.endswith('::'):
             pass
-        elif '' in hx:
-            raise ValueError('%s: IPv6 address invalid: '
-                             'compressed format detected in full notation' % dq)
+
+        # hide to fix https://github.com/tehmaze/ipcalc/issues/68
+        # elif '' in hx:
+        #     raise ValueError('%s: IPv6 address invalid: '
+        #                      'compressed format detected in full notation' % dq)
+
         ip = ''
         hx = [x == '' and '0' or x for x in hx]
         for h in hx:
